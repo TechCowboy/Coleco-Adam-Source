@@ -26,7 +26,7 @@ error_odd_length = 32
 error_too_large  = 64
 error_mnemonic   = 128
     
-errors_to_display = error_mnemonic # 1+2+4+8+16+32+64+128
+errors_to_display = 1+2+4+8+16+32+64+128
 
 
 def find_linenumber(text, line):
@@ -299,11 +299,14 @@ def coleco_formatter(filename):
     directory = os.path.dirname(filename)
     basefile = os.path.basename(filename)
     
-    new_filename = directory + "/" + "new_"+basefile;
+    new_filename = os.path.join(directory, "new_"+basefile);
     
-    asm_filename = directory + "/" + basefile[:basefile.find('.')] + ".asm"
-    print(asm_filename)
-    o = open(new_filename, "w")
+    asm_filename = os.path.join(directory, basefile[:basefile.find('.')] + ".asm")
+    print(f"original file:          {filename}")
+    print(f"automated corrections:  {new_filename}")
+    print(f"assembler file:         {asm_filename}")
+
+    o = open(new_filename, "w") 
     a = open(asm_filename, "w")
     
     text_line = " "
@@ -378,9 +381,6 @@ def coleco_formatter(filename):
             # probably a label or first column comment
             line = line.lstrip()
         
-        if linenumber >= 273:
-            label = ""
-        
         label_found = False
         label = ""
         
@@ -392,12 +392,23 @@ def coleco_formatter(filename):
         
         ending_comment_found = False
         ending_comment = ""
-        
+
+        if len(line) > 0:
+            if line.strip()[0] == ':':
+                # if the first character of the line is a colon
+                # it's probably supposed to be a semi-colon
+                column = line.find(':')
+                t = list(line)
+                t[column] = ';'
+                line = "".join(t)
+                
         special = line.find('^') >= 0
         special = special or (line.find(';') == 0)
         
         # if it's a comment, don't do anymore processing
         if len(line) > 0:
+            
+
                      
             if special:
                 new_post_linenumber = line
@@ -481,8 +492,8 @@ def coleco_formatter(filename):
     f.close()  
     
 def main():
-    directory = "/home/ndavie/Documents/Projects/Coleco-Adam-Source/"
+    directory = os.getcwd()
     filename = "coleco-listing.txt"
-    coleco_formatter(directory+filename)
+    coleco_formatter(os.path.join(directory,filename))
     
 main()

@@ -362,13 +362,13 @@
                          362   ;MEM_CNFGOO     EQU     $+24
                          363   ;;              ;GLB     SWITCHTABLE
                          364   ;SWITCH_TABLE   EQU     MEMCNFGOO
-                         365   ::                                                        ;GLB     MEMCNFGOI
-                         366   :MEM_CNFGO1          EQU   $+25                           
+                         365   ;:              ;GLB     MEMCNFGOI
+                         366   ;MEM_CNFGO1     EQU     $+25
                          367   ;;              ;GLB     MEMCNFGO2
                          368   ;MEM_CNFGO2     EQU     $+26
-                         369   :                                                         ;              ;GLB     MEMCNFGO3
+                         369   ;;              ;GLB     MEMCNFGO3
                          370   ;MEM_CNFGO3     EQU     $+27
-                         371   3                                                         ;              ;GLB     MEMCNFGO4
+                         371   ;;              ;GLB     MEMCNFGO4
                          372   ;MEM_CNFGO4     EQU     $+28
                          373   ;;              ;GLB     MEMCNFGOS
                          374   ;MEM_CNFGOS     EQU     $+29
@@ -401,7 +401,7 @@
                          401   ;;                    ;GLB PORT_TABLE
                          402   ;PORT_TABLE          EQU        MEM_SWITCH_PORT
                          403   ;;                 ;GLB NET_RESET_PORT
-                         404   :NET_RESET_PORT      EQU   $+41                           
+                         404   ;NET_RESET_PORT       EQU        $+41
                          405   ;;                 ;GLB        VDP_CTRL_PORT
                          406   ;VOP_ CTRL_PORT       EQU         $+42
                          407   ;;                 ;GLB        VDP_DATA_PORT
@@ -956,7 +956,7 @@
                          956   ;eee          ;EXT       MEM_CNFGO8
                          957   ;eee          ;EXT       MEM_CNFGO9
                          958   ;eee          ;EXT       MEM_CNFGOA
-                         959   :EE¢@                                                     ;EXT       MEM_CNFGOB
+                         959   ;ee¢@         ;EXT       MEM_CNFGOB
                          960   ;ee@          ;EXT       MEM_CNFGOC
                          961   ;ee@          ;EXT       MEM_CNFGOD
                          962   ;ece@         ;EXT       MEM_CNFGOE
@@ -1844,7 +1844,7 @@
                          1844  ;
                          1845  ;  Falls   into _PUT_ASCII
                          1846  ;
-   E149                  1847                       :                                    
+   E149                  1847                                                            ;
                          1848                                                            ;LO       HL,([PATTRNGENTBL];get base of  current  generator    table
    E149  ED5BF06A        1849                       LD    DE,[PATTRNGENT8L]              ;get base of  current  generator    table
                          1850                                                            ;LD       DE,OOH+8        ;Offset into  it where  SPACE  will   be
@@ -2274,7 +2274,7 @@
                          2274  ;   Callers   - This  has  different   input   parameters  than   OS-7  and
                          2275  ;               the  controller   map  ts  ordered  differently.
                          2276  ;
-                         2277  :                                                         
+                         2277  ;
                          2278  ;Stack Usage:
                          2279  ;  will  use  4 words   (2 pushes,  2  call)
                          2280  ;
@@ -2720,8 +2720,8 @@
    E356  ED67            2720                       RRD                                  ;& = 0    LSN [HL]
    E358  D601            2721                       SUB   1               :2 FLAG  SET [TF DEC  TO O,C  FLAG IF DEC   TO  -!1 
    E35A  F5              2722                       PUSH  AF                             ;save  Z and C flags
-   E358  ED66F           2723                       RLD                                  ;[Ht}) = old MSN    new  LSN
-   E350  FT              2724                       POP   AF                             ;restore  Z and  C flags.   A    O   new LSN
+   E358  ED6F            2723                       RLD                                  ;[Ht}) = old MSN    new  LSN
+   E350  F7              2724                       POP   AF                             ;restore  Z and  C flags.   A    O   new LSN
    E35E  C9              2725                       RET                                  
                          2726  
                          2727  
@@ -2737,13 +2737,13 @@
                          2737  
    E35F                  2738  DECMSN                                                    
    E35F                  2739  LOCLDECMSN                                                
-   E55F  AF              2740                       XOR   &                              
-   E360  ED66F           2741                       RLD                                  ;A = O   MSN [HL]
-   E362  D601            2742                       SUB   [                              ;2 flag set if dec to O, C flag set if dec  -i
+   E55F  AF              2740                       XOR   A                              
+   E360  ED6F            2741                       RLD                                  ;A = O   MSN [HL]
+   E362  D601            2742                       SUB   1                              ;2 flag set if dec to O, C flag set if dec  -i
    E364  F5              2743                       PUSH  AF                             ;save Z and C flags
    E365  ED67            2744                       RRD                                  ;{HtL)= new MSN   old LSN
-   E367  FT              2745                       POP   AF                             ;srestoreZ and C flags, A =0    new MSN
-E3686C9                  2746                       RET                                  
+   E367  F7              2745                       POP   AF                             ;srestoreZ and C flags, A =0    new MSN
+   E368  C9              2746                       RET                                  
                          2747  
                          2748  
                          2749  
@@ -2760,7 +2760,7 @@ E3686C9                  2746                       RET
    E36A  E6F0            2760                       AND   OFOH            >A = MSN   0   
    E36C  47              2761                       LD    8A                             ;save in B
    E360  0F              2762                       RRCA                                 ;Swap nibbles
-E366E0F                  2763                       RRCA                                 
+   E36E  0F              2763                       RRCA                                 
    E36F  0F              2764                       RRCA                                 
    E370  0F              2765                       RRCA  7A = 0   MSN                   
    E371  B0              2766                       OR    8                              ;& = MSN   MSN
@@ -2778,19 +2778,19 @@ E366E0F                  2763                       RRCA
                          2778  
    E374                  2779  ADDB16                                                    
    E374                  2780  LOC_ADDB16                                                
-   E374  0600            2781                       LD                                   ;set B for positive value inA
-   E376  CB7F            2782                       BIT                                  ;1f A is positive
-   E378  2801            2783                       JR                                   ;skip
-                         2784  EEE8                 LD    7A 16 NEG: EXTEND SIGN BIT THRU 8 
-   E5TA                  2785                       DEC                                  ;Added u0S
+   E374  0600            2781                       LD    B,0                            ;set B for positive value inA
+   E376  CB7F            2782                       BIT   7,A                            ;1f A is positive
+   E378  2801            2783                       JR    Z,POS                          ;skip
+                         2784  ;eee8    LD  b,0FFh                    7A 16 neg: extend sign bit thru 8
+   E57A                  2785                       DEC   B                              ;Added u0S
    E378                  2786  POS                                                       
-   E376  BE              2787                       ADD                                  ;do 8 bit add [and set Carry]
-   E37C  77              2788                       LD                                   ;store result into LSB 16 bit number
-   E370  23              2789                       INC                                  ;put SB
-   E5TE  TE              2790                       LD                                   ;into A
-  E5T7F  88              2791                       ADC                                  ;A = MSB + Carry + B [8B{tsO or FF)
-   E380  77              2792                       LD                                   ;store result into MSB
-   E381  28              2793                       DEC                                  ;re-point HL to LSB 16 bit number
+   E376  BE              2787                       ADD   A,[HL]                         ;do 8 bit add [and set Carry]
+   E37C  77              2788                       LD    [HL],A                         ;store result into LSB 16 bit number
+   E370  23              2789                       INC   HL                             ;put SB
+   E37E  7E              2790                       LD    A,[HL]                         ;into A
+   E37F  88              2791                       ADC   A,B                            ;A = MSB + Carry + B [8B{tsO or FF)
+   E380  77              2792                       LD    [HL],A                         ;store result into MSB
+   E381  28              2793                       DEC   HL                             ;re-point HL to LSB 16 bit number
    E382  C9              2794                       RET                                  
                          2795  
                          2796  
@@ -2814,9 +2814,9 @@ E366E0F                  2763                       RRCA
    E387  28              2814                       DEC   HI                             
    E386  48              2815                       LD    C,,8            :FORM 4 ¢ SONGNO IN C 
    E389  0600            2816                       LD    B,O                            
-   E368  CB0!            2817                       RLC   C                              
-E386CB0!                 2818                       RLC   C                              
-   E36F  098             2819                       ADD   HL,BC           :HL PTS TO SXDATA’S ENTRY  IN LST_OF SND ADORS 
+   E36B  CB01            2817                       RLC   C                              
+   E38D  CB01            2818                       RLC   C                              
+   E36F  98              2819                       ADD   HL,BC           :HL PTS TO SXDATA’S ENTRY  IN LST_OF SND ADORS 
    E390  5E              2820                       LD    E,[HT]                         ;move addr SxDATA to IX thru  DE
    E391  23              2821                       INC   HL                             
    E392  56              2822                       LD    D,[HT]                         
@@ -2836,7 +2836,7 @@ E386CB0!                 2818                       RLC   C
                          2836  ;address of  the   special   sound  effect  routine.
                          2837  
    E397                  2838  AREA_SONG_IS                                              
-   E397  DD7E0C0         2839                       LD    A,[1IX+0]          7A  := CHA      SONGNO   OR  62,OR  A  := FF 
+   E397  DD7EC0          2839                       LD    A,[1IX+0]          7A  := CHA      SONGNO   OR  62,OR  A  := FF 
    E59A  FEFF            2840                       CP    OFFH                           
    E39C  CB              2841                       RET   2                              ;leave   with   A =  FF  if  area   inactive
    E39D  E63F            2842                       AND   00111111B          SMASK  CHA  
@@ -2849,7 +2849,7 @@ E386CB0!                 2818                       RLC   C
    E3A4  E1              2849                       POP   HL                             
    E3A5  23              2850                       INC   HL                             
    E3A6  5E              2851                       LD    E,[HL]                         ;save  LSB   effect   addr   ine
-   EJA7  23              2852                       INC   HL                             ;HL  to  byte  2
+   E3A7  23              2852                       INC   HL                             ;HL  to  byte  2
    E3A8  56              2853                       LD    D,[HL]                         ;save  MSB   effect   addr   inoO
    E3A9  EB              2854                       EX    DE,HL                          ;HL  :=  addr  special    effect
    E3AA  C9              2855                       RET                                  
@@ -2887,12 +2887,12 @@ E386CB0!                 2818                       RLC   C
                          2887  
                          2888  ;    :  ¢ inittalize PTR_TO_LST_OF  SND _ADORS with value passed  in  HL
                          2889  
-   E3AB  22FE66E         2890                       LD    [PTR_TO_LST_OF_SND_ADDRS],HL   
+   E3AB  22FE6E          2890                       LD    [PTR_TO_LST_OF_SND_ADDRS],HL   
                          2891  
                          2892  ;       * store inactive code   at byte O of each of the n data  areas  [B  = n)
                          2893  
    E3AE  23              2894                       INC   HL                             ;pt HL to song 1 data area entry   in LST_OF_SND_ADDRS
-  E35AF  23              2895                       INC   HL,                            
+   E3AF  23              2895                       INC   HL,                            
    E380  5E              2896                       LD    —,[HL]                         ;pt DE to byte 0 in first song  data  area
    E381  23              2897                       INC   HL                             
    E382  56              2898                       LD    0D[HL]                         
@@ -2912,7 +2912,7 @@ E386CB0!                 2818                       RLC   C
                          2912  
    E3BF  21E3E6          2913                       LD    HL,DUMAREA                     ;point HL to inactive byte below  [after   the  RET]
    E3C2  22FE70          2914                       LD    [PTR TOS ON _O],HL             ;store addr DUMAREA at PTR_TOS  ON  _O
-  E3C55  22FE72          2915                       LD    [PTR_TO_SON _1],HL             ;store addr DUMAREA at PTR_TO_S ON 1
+   E3C5  22FE72          2915                       LD    [PTR_TO_SON _1],HL             ;store addr DUMAREA at PTR_TO_S ON 1
    E3C8  22FF            2916                       LD    [PTR_TO_SON 2],HL              ;store addr f  ‘REA at PTR_TO_S ON  2
    E3CB  22FE76          2917                       LD    [PTR_TO_SON_3],HL              ;store addr  DUMAREA at PTR TO SON  3
                          2918  
@@ -2942,7 +2942,7 @@ E386CB0!                 2818                       RLC   C
    E3E6  FF              2942  DUMAREA              DEFB  INACTIVE                       
                          2943  
                          2944  ;       END INITSOU
-                         2945                       :                                    
+                         2945                                                            ;
                          2946  
                          2947  
                          2948  eeeeeeeeeeeresereseeeeereees                                      
@@ -2957,19 +2957,19 @@ E386CB0!                 2818                       RLC   C
                          2957  
                          2958  ;        * RET   if  song   already    in progress
                          2959  
-  E35E7  C5              2960                       PUSH  BC                             ;save  SONGNO  on  stack
+   E3E7  C5              2960                       PUSH  BC                             ;save  SONGNO  on  stack
    E3E8  CDE383          2961                       CALL  PT_IX_TO_SXDATA                ;point   IX to SONGNO’s   song  data  area
-  EIJEB  D07E00          2962                       LD    A,[1XX+0]                      ;A  := CH#  [if any]     SONGNO   [if any]
+   E3EB  D07E00          2962                       LD    A,[1XX+0]                      ;A  := CH#  [if any]     SONGNO   [if any]
    E3EE  E65F            2963                       AND   3FH                  >A  := 0 O SONGNO 
-   E5F0  CI              2964                       POP   =—BC                           ;B  := SONGNO
-   E3FI  B88             2965  .                    CP    8                              ;test   ifalready    in progress
+   E5F0  C1              2964                       POP   BC                             ;B  := SONGNO
+   E3F1  B8              2965                       CP    8                              ;test   ifalready    in progress
    E3F2  C8              2966                       RET   2                 '   IF   SO,LEAVE 
                          2967  
                          2968  ;        *  load  first   note   and  set  NEXT_NOTE  PTR   [thru  LOAD  NEXT_NOTE]
-      :                  2969  
+                         2969  
    E3F3  DD7000          2970                       LD    [1X+0],B                       ;store  SONGNO  in  byte  O
    E5F6  2B              2971                       DEC   HL                    >-HL  LEFT BY  PT_IX_TO_SXDATA     POINTING   TO  MSB  SXDATA 
-  E35F7  2B              2972                       DEC   HL                             ;-entry   in LST_OF_SNO_ADDRS     point  Ht  to  note  list
+   E3F7  2B              2972                       DEC   HL                             ;-entry   in LST_OF_SNO_ADDRS     point  Ht  to  note  list
    E3F8  56              2973                       LD    D,[HT]                         ;"Starting  addr  entry   in  LST_OF_SND_ADDRS     and  save   this
    E3F9  28              2974                       DEC   HL                             ;-addr  in DE
    E3FA  5E              2975                       LD    E,[HL]                         ;DE  now has  the  initial   value  for  NEXT _NOTE_PTR
@@ -2977,7 +2977,7 @@ E386CB0!                 2818                       RLC   C
    E3FE  007202          2977                       LD    [I1X+2],D0                     
    E401  CDE4F2          2978                       CALL  LOAD  _NEXT_NOTE               ;load  note,  byte  0 :=  CH#  SONGNO,   set  new  NEXT NOTE  PTR
    E404  1874            2979                       JR    UP_CH_DATA_PTRS                ;new  song, so  update   channel!  data  ptrs
-                         2980                       :                                    
+                         2980                                                            ;
                          2981  ;        END  JUKEBOX
                          2982  
                          2983  
@@ -3054,17 +3054,17 @@ E386CB0!                 2818                       RLC   C
    E456  DD555E00        3054                       LD    E,[1X+0]                       ;look   for  inactive  code,   OFFH
    E459  1C              3055                       INC   E                              ;this  sets  Z  flag   if  E = OFFH
    E45A  2003            3056                       JR    NZ,L7                          ;if  PSW  is zero  song    data  area    is  inactive
-                         3057  #448                 CALL  OUT_TO_  SOUND PORT     =      ;turn off  CHx
-                         3058  *EES                 JR    ~—~6T8S                        
-   E45C  C3IE60D         3059                       JP    OUT_TO_SOUND_PORT              ;turn  off  CHx
+                         3057  ;#448      CALL      OUT_TO_  SOUND PORT     =;turn off  CHx
+                         3058  ;*ees      JR      ~—~6t8s
+   E45C  C3E60D          3059                       JP    OUT_TO_SOUND_PORT              ;turn  off  CHx
                          3060  
                          3061  ;         ELSE  send  out  current    ATN and  FREQ
                          3062  
    E45F                  3063  L7                   .                                    
-  E455F  C0E328          3064                       CALL  UPATNCTRL           :SEND  OUT  ATTENUATION 
+   E45F  C0E328          3064                       CALL  UPATNCTRL           :SEND  OUT  ATTENUATION 
    E462  C3E339          3065                       JP    UPFREQ                         ;send  out  frequency
                          3066  *EE8                 CALL  UPFREQ                         ;send  out  frequency
-   E465  .               3067  L8                                                        
+   E465                  3067  L8                                                        
                          3068  SESS                 RET   -                              
                          3069  ;         ENDIF
                          3070  ;eeeeeeeeeeseseseeeeerereseese
@@ -3120,7 +3120,7 @@ E386CB0!                 2818                       RLC   C
    E48B  0601            3120                       LD    A                              ;set  IX  to byte   O SIDATA
    E480  CDE383          3121                       CALL  PTIX_TO_SXDATA                 ;RETS  with   IX addr  byte  O  song   1
                          3122  
-  E4390                  3123  L2                                                        ;LOOP  until   end  of song  data   areas
+   E490                  3123  L2                                                        ;LOOP  until   end  of song  data   areas
    E490  DD7E00          3124                       LD    A,[1IX+0]                      ;test  for  end  of  song  data  araes
    E493  87              3125                       OR    A                              ; #00   CP        ENDSDATA
    E494  281F            3126                       JR    Z,O00NE_SNOMAN                 ;leave  loop   if all  data  areas   checked
@@ -3133,7 +3133,7 @@ E386CB0!                 2818                       RLC   C
    E49C  E6C0            3133                       AND   OCOH                           ;87  - BE   tn  A   = CHA
    E49E  07              3134                       RLCA                                 ;form  CH¥   *  2   inaA,  t.e.,   the  offset   from
    E49F  07              3135                       RLCA                                 ;PTR_TO  S ON_O    of  the   channel    data  area   pointer
-   E4A0  007             3136                       RLCA  >THAT  POINTS    TO  CHANNEL    CH” 
+   E4A0  07              3136                       RLCA  >THAT  POINTS    TO  CHANNEL    CH” 
    E4A1  5F              3137                       LD    E,A                            ;add  offset   to addr  of  PTR_TO_S  ON_O
    E4A2  1600            3138                       LD    0,0                            
    E4A4  21FE70          3139                       LD    HL,PTR  TO   _SON  O           
@@ -3161,7 +3161,7 @@ E386CB0!                 2818                       RLC   C
                          3161  
                          3162  
                          3163  ;SESS SSHHSESHER SHESHEHEEEE
-                         3164  :¢                   LEAVE_EFFECT                                
+                         3164  ;¢      LEAVE_EFFECT
                          3165  ;SPSS  SSSSHHHESSESHEHEHEEEEE
                          3166  
                          3167  ;LEAVEEFFECT,  called by a special sound effect routine when it’s finished,
@@ -3182,9 +3182,9 @@ E386CB0!                 2818                       RLC   C
    E46F  E63F            3182                       AND   O3FH               :® O O SONGNO 
    E4C1  47              3183                       LD    B,A                := 0 O SONGNO [B NOW = ORTGINAL SONGNO] 
    E4C2  DD7E00          3184                       LD    A,[1X+0],= CHA   62 [ALL EFFECT NOTES HAVE SONGNO  =  62] 
-   E4C5  E6C0            3185                       AND   OCOH                  CH¥ O00 0000 
+   E4C5  E6C0            3185                       AND   0C0H                  CH¥ O00 0000 
    E4C7  B0              3186                       OR    B                     CHA   SONGNO 
-  E4CC8  007700          3187                       LD    [IX+0O],A                      ;restore the song number
+   E4C8  DD7700          3187                       LD    [IX+0],A                       ;restore the song number
    E4CB  1816            3188                       JR    EFXOVER                        
                          3189  
                          3190  
@@ -3199,7 +3199,7 @@ E386CB0!                 2818                       RLC   C
    E4CD                  3199  PROCESS              DATA_AREA                                
    E4CD  CDE397          3200                       CALL  AREA_SONG_IS                   ;return    area’s    SONGNO     in A   [and   addr   SFX  in  HL]
    E4D0  FEFF            3201                       CP    INACTIVE                       ;test   for   inactive     code
-   E4D2  C8.             3202                       RET   Z                              ;RET,   no   processing      if  area   inactive
+   E4D2  C8              3202                       RET   Z                              ;RET,   no   processing      if  area   inactive
                          3203  
                          3204  ;         *  if special     effect,    call   it to   process     the  data   area
                          3205  
@@ -3224,7 +3224,7 @@ E386CB0!                 2818                       RLC   C
    E4E7  CDE4F2          3224                       CALL  LOAD_NEXT   NOTE               ;load  data    for   next   note
    E4EA  C1              3225                       POP   BC                             ;B  := CHA       SONGNO    previous     note
    E4EB  DD07E00         3226                       LD    A,[1X+0]                       ;A  :® CHA#      SONGNO    new   note   [may   be  inactive]
-   E4EE  B88             3227                       CP    8                              ;check    against    new   note’s    CHé#     SONGNO
+   E4EE  B8              3227                       CP    8                              ;check    against    new   note’s    CHé#     SONGNO
                          3228  ESE                  JR    Z,L12                 >1F  PSW   IS  NON-ZERO     CHANGE    TO/FROM     TONE/EFX/NOISE 
    E4EF  C8              3229                       RET   Z                              
    E4F0  1888            3230                       JR    UP_CH_DATA_PTRS                ;to  maintain     data   area    priority     system
@@ -3245,14 +3245,14 @@ E386CB0!                 2818                       RLC   C
                          3245  
                          3246  ;          *  deactivate     area,    save   SONGNO    on   stack
                          3247  
-   E4F2  D0TVE00         3248                       LD    A,[1X+0]                       ;A  :=  byte   O
-   E4F5  E65F            3249                       AND   00111111B                      ;mask   CH#,    if  any
+   E4F2  D07E00          3248                       LD    A,[1X+0]                       ;A  :=  byte   O
+   E4F5  E63F            3249                       AND   00111111B                      ;mask   CH#,    if  any
    E4F7  F5              3250                       PUSH  AF                             ;save   SONGNO    on   stack
-   E4F8  0D5600FF        3251                       LD    [IX+O0],INACTIVE               ;deactivate      area
+   E4F8  0D3600FF        3251                       LD    [IX+O0],INACTIVE               ;deactivate      area
                          3252  
                          3253  ;          *  A  :®  header    new   note
                          3254  
-   E4FC  DD6E0           3255                       LD    L,[1X+1]               -HL   := ADDR    NEW   NOTE    IN ROM 
+   E4FC  DD6E01          3255                       LD    L,[1X+1]               -HL   := ADDR    NEW   NOTE    IN ROM 
    E4FF  DD6602          3256                       LD    H,[1X+2]                       
    E502  7E              3257                       LD    A,[HL]                -A   :=  HEADER    NEW   NOTE 
                          3258  
@@ -4061,7 +4061,7 @@ E386CB0!                 2818                       RLC   C
                          4061  
                          4062  
    E938  DD6E21          4063                       LD    L,[IX*FCB_POINTER]             ;GET  POINTER    INTO  IY  THE   LONG WAY
-   E938  006622         4062           I)         H,[IX+FCB_P0INTER+14064  E938                 006622 4062           I]         H,[IX+FCB_POINTER+1] 
+   E938  006622          4064                       LD    H,[IX+FCB_POINTER+1]           
                          4065  
    E93E                  4066  NOT_END:                                                  
    EQ3E  E5              4067                       PUSH  HL                             
@@ -4070,96 +4070,3 @@ E386CB0!                 2818                       RLC   C
                          4070  ;*
                          4071  ;*  STILL  TRYING    TO CALC  THE  NEW   START   ADOR
                          4072  ;=                    .
-   E941  2AFEIA          4073                       LD    HL,[NEW_HOLE SIZE]             
-   E944  FD7511          4074                       LD    [IY+DIR_MAX_LENGTH],L          ;  BLOCKS   LEFT   ON TAPE
-   E947  FD7412          4075                       LD    [IY+DIR_MAX_LENGTH+1],H        
-                         4076  
-   EQ4A  3AFE16          4077                       LD    A,[NEW_HOLE_START]             
-   E94D  FD7700          4078                       LD    [IY+DIR_START_BLOCK],A         
-   E950  3AFE17          4079                       LD    A,[NEW_HOLE_START+1]           
-   E953  FD770E          4080                       LD    [IY+DIR_START_BLOCK+1],A       
-   E956  3AFE18          4081                       LD    A,[NEW_HOLE_START+2]           
-   E959  F0770F          4082                       LD    [IY+DIR_START_BLOCK+2],A       
-   E95C  3AFE19          4083                       LD    A,[NEW_HOLE_START+3]           
-   E95F  F07710          4084                       LD    [IY+DIR_START_BLOCK+3],A       
-                         4085  
-   E962  FD360C01        4086                       LD    [IY+DIR_ATTR],ATTR_HOLE        ; SET  HOLE   UP
-                         4087  
-   E966  FDE5            4088                       PUSH  IY                             
-   E968  D1              4089                       POP   DE                             
-                         4090  
-   E969  21F428          4091                       LD    HL,HOLE_FILE_NAME              
-   E96C  01000C          4092                       LD    BC,12                          
-   E96F  EDB0            4093                       LDIR                                 
-                         4094  
-   E971                  4095  TIME_TO_WRITE:                                            
-   E971  D07E17          4096                       LD    A,[IX+FCB  DEVICE]             ;GET PARAMETERS  FROM  FCB
-   E974  2AFE05          4097                       LD    HI,[BUF START]                 
-   E977  D05E19          4098                       LD    E,[IX+FCB_BLOCK   ]            
-   E97A  0D56IA          4099                       LD    0,[1X+FCB_BLOCK+   1]          
-   E970  DD4E 16         4100                       LD    C,[1X+FCB_BLOCK+2]             
-   E960  00461C          4101                       LD    8B[IX+FCB_BLOCK+3]             
-   E983  C0FIE6          4102                       CALL  WRITE  _BLOCK                  ;WRITE  THE BLOCK OUT
-                         4103  
-  E9866  2001            4104                       JR    NZ,MAKE ERROR                  ; IT’S A BOO BOO! !
-                         4105  E988                 AF    4106            XOR      &     ;SHOW NO  ERROR
-                         4106  
-   E989                  4107  LETS_GET_OuT:                                             
-   E989  4106  MAKE_ERR0R4108  E989                 4106  MAKE_ERROR:                    
-                         4109                                                            ;RESTORE  THE REGISTERS
-   E969  87              4110                       OR    A                                                                                                             ‘ 
-   E9BA  CI              4111                       POP   BC                             
-   E988  D1              4112                       POP   DE                             
-   E95C  E1              4193           P0P      H4113  E9SC                 E1    4193           POP      HL     
-   E98D  DDE I           4114                       POP   IX                             
-   E56F  FDE1            4115                       POP   RY                             
-   E991  CE              4116                       RET                                  
-   E992  4118  T00_BI    4117  E992                 4118  TOO_BIG                        
-   E982  3E08             4119            L0       A,T00  BI6  ERR      ;5H0W AN  ERR04118  E982                 3£08  4119            LO       A,TOO  BIG  ERR ;SHOW AN  ERROR
-   E994  18F3            4120            JR       MAKE ERR04119  E994                 18F3  4120            JR       MAKE ERROR 
-                         4120                       4121                                 
-                         4121                       4122                                 
-   E996  4123  FILE_EXI5T4122  E996                 4123  FILE_EXISTS                    
-   E996  3E06             4124            L0       A,FILE_ EXI5T5   ER4123  E996                 3E06  4124            LO       A,FILE_ EXISTS   ERR 
-   E988  16EF            4125           JR       MAKE ERR04124  E988                 1GEF  4125           JR       MAKE ERROR 
-                         4125                       4126                                 
-   CBBA  4127  FULL_DIR_EXIT4126  CBBA                 4127  FULL_DIR_EXIT:                 
-   E55A  3E0C             4126            L0       A,FULL_DIR_ER4127  ESSA                 3EOC  4126            LO       A,FULL_DIR_ERR 
-   E50C  18EB            4129            JR       MAKE ERR04128  ESOC                 18EB  4129            JR       MAKE ERROR 
-                         4129                       4130                                 
-    E5E  .          4131  TAPE_FUL4130  ESE                  .     4131  TAPE_FULL                
-   E55E  3E0D             4132            L0       A,FULL_TAPE_ER4131  ESSE                 3E0D  4132            LO       A,FULL_TAPE_ERR 
-   E5A0  18E7            4133            JR       MAKE ERR04132  ESAO                 18E7  4133            JR       MAKE ERROR 
-   4134  ;«              4133                       4134                                 ;«+
-   4135  ;               4134                       4135                                 ;¢
-   4136  ;*    5UBR0UTINE   NAME:  6ET  FILE   NAME  LEN6T4135                       4136                                 ;*    SUBROUTINE   NAME:  GET  FILE   NAME  LENGTH
-   4137  ;               4136                       4137                                 ;*
-   4138  ;«      ENTRY:   HL- P0INT5   T0  TEXT  5TRIN4137                       4138                                 ;«      ENTRY:   HL- POINTS   TO  TEXT  STRING
-   4139  ;*      EXIT:    Z=1=F0UND   AND  PR0PER   5IZE  (1-124138                       4139                                 ;*      EXIT:    Z=1=FOUND   AND  PROPER   SIZE  (1-12)
-   4140  ;*                 BC=BYTE   C0UN4139                       4140                                 ;*                 BC=BYTE   COUNT
-   4141  ;                  A=TRA5HE4140                       4141                                 ;                  A=TRASHED
-   4142  ;               4141                       4142                                 ;*
-   4143  ;*               Z=0=ERR04142                       4143                                 ;*               Z=O=ERROR
-   4144  ;*                 BC=TRA54143                       4144                                 ;*                 BC=TRASH
-   4145  ;»                 A=FILE  NAME  _T00 L0N4144                       4145                                 ;»                 A=FILE  NAME  _TOO LONG
-   4146  ;* DL5(8/28/83  4145                       4146                                 ;* DLS(8/28/83)
-   4147  ;               4146                       4147                                 ;*
-   E9A2  4148  6ET_FILE_NM_LEN4147  E9A2                 4148  GET_FILE_NM_LEN:               
-   E9A2  E5               4149                     PU5H       HL                         ;5AVE  THE P0INTER  T0  FILE NAM4148  E9A2                 E5    4149                     PUSH       HL ;SAVE  THE POINTER  TO  FILE NAME
-   E9A3  060C             4150                     L0         B,12                       ;5CAN  UP T0 12 BYT4149  E9A3                 O6OC  4150                     LO         B,12 ;SCAN  UP TO 12 BYTE
-   E9A5  0E0!             4151                     LD         C,1                        ;5ET C0UNT  T04150  E9A5                 O£0!  4151                     LD         C,1 ;SET COUNT  TO 1
-   E5AT  4152  5RCH_L00P 4151  ESAT                 4152  SRCH_LOOP:                     
-   EQA7  7E              4153                     LD        A,{HL]                     ;6ET FN(14152  EQA7                 7E    4153                     LD        A,[HL] ;GET FN(1)
-   E9A8  FE03            4154                     CP        03                         5ET4153  E9A8                 FEO3  4154                     CP        03                         SETX 
-   EQAA  2809            4155                     UR        2,60T_I4154  EQAA                 2809  4155                     UR        2,GOT_IT 
-   4156  ;               4155                       4156                                 ;*
-   E9AC  0C              4157                     INC4156  E9AC                 OC    4157                     INC       C 
-   E9AD  23              4158                     INC       HL                         ;ADVANCE P0INTER  T0 FILE  NAME  5TRIN4157  E9AD                 23    4158                     INC       HL ;ADVANCE POINTER  TO FILE  NAME  STRING
-   EQAE  10F7           4159                     DUNZ      5RCH_L004158  EQAE                 10F7  4159                     DUNZ      SRCH_LOOP 
-   4160  ;               4159                       4160                                 ;¢
-   E9B0  4161  ERR_6F    4160  E9B0                 4161  ERR_GFN                        
-   E9B0  3E0E            4162                     LD        A,FILE_NM_ER4161  E9BO                 3E0E  4162                     LD        A,FILE_NM_ERR 
-   E982  87              4162                       OR    A                              ;SHOW ERROR
-   E983  E1              4164                     P0P       HL4163  E983                 E1    4164                     POP       HL 
-   E984  C9              4165                     RE4164  984                  C9    4165                     RET   
-   4166  ;               4165                       4166                                 ;*

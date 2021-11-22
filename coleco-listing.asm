@@ -362,13 +362,13 @@ EFFECT_OVER          EQU   $
 ;MEM_CNFGOO     EQU     $+24
 ;;              ;GLB     SWITCHTABLE
 ;SWITCH_TABLE   EQU     MEMCNFGOO
-::                                                        ;GLB     MEMCNFGOI
-:MEM_CNFGO1          EQU   $+25                           
+;:              ;GLB     MEMCNFGOI
+;MEM_CNFGO1     EQU     $+25
 ;;              ;GLB     MEMCNFGO2
 ;MEM_CNFGO2     EQU     $+26
-:                                                         ;              ;GLB     MEMCNFGO3
+;;              ;GLB     MEMCNFGO3
 ;MEM_CNFGO3     EQU     $+27
-3                                                         ;              ;GLB     MEMCNFGO4
+;;              ;GLB     MEMCNFGO4
 ;MEM_CNFGO4     EQU     $+28
 ;;              ;GLB     MEMCNFGOS
 ;MEM_CNFGOS     EQU     $+29
@@ -401,7 +401,7 @@ EFFECT_OVER          EQU   $
 ;;                    ;GLB PORT_TABLE
 ;PORT_TABLE          EQU        MEM_SWITCH_PORT
 ;;                 ;GLB NET_RESET_PORT
-:NET_RESET_PORT      EQU   $+41                           
+;NET_RESET_PORT       EQU        $+41
 ;;                 ;GLB        VDP_CTRL_PORT
 ;VOP_ CTRL_PORT       EQU         $+42
 ;;                 ;GLB        VDP_DATA_PORT
@@ -956,7 +956,7 @@ SOUNODPORT
 ;eee          ;EXT       MEM_CNFGO8
 ;eee          ;EXT       MEM_CNFGO9
 ;eee          ;EXT       MEM_CNFGOA
-:EE¢@                                                     ;EXT       MEM_CNFGOB
+;ee¢@         ;EXT       MEM_CNFGOB
 ;ee@          ;EXT       MEM_CNFGOC
 ;ee@          ;EXT       MEM_CNFGOD
 ;ece@         ;EXT       MEM_CNFGOE
@@ -1844,7 +1844,7 @@ DEL                  EQU   7FH                            ;ASCII code for   it
 ;
 ;  Falls   into _PUT_ASCII
 ;
-                     :                                    
+                                                          ;
                                                           ;LO       HL,([PATTRNGENTBL];get base of  current  generator    table
                      LD    DE,[PATTRNGENT8L]              ;get base of  current  generator    table
                                                           ;LD       DE,OOH+8        ;Offset into  it where  SPACE  will   be
@@ -2274,7 +2274,7 @@ LEAVE_THEM_OFF:
 ;   Callers   - This  has  different   input   parameters  than   OS-7  and
 ;               the  controller   map  ts  ordered  differently.
 ;
-:                                                         
+;
 ;Stack Usage:
 ;  will  use  4 words   (2 pushes,  2  call)
 ;
@@ -2737,9 +2737,9 @@ LOCL_DECLSN
 
 DECMSN                                                    
 LOCLDECMSN                                                
-                     XOR   &                              
+                     XOR   A                              
                      RLD                                  ;A = O   MSN [HL]
-                     SUB   [                              ;2 flag set if dec to O, C flag set if dec  -i
+                     SUB   1                              ;2 flag set if dec to O, C flag set if dec  -i
                      PUSH  AF                             ;save Z and C flags
                      RRD                                  ;{HtL)= new MSN   old LSN
                      POP   AF                             ;srestoreZ and C flags, A =0    new MSN
@@ -2778,19 +2778,19 @@ LOCi_MSNTOLSN
 
 ADDB16                                                    
 LOC_ADDB16                                                
-                     LD                                   ;set B for positive value inA
-                     BIT                                  ;1f A is positive
-                     JR                                   ;skip
-EEE8                 LD    7A 16 NEG: EXTEND SIGN BIT THRU 8 
-                     DEC                                  ;Added u0S
+                     LD    B,0                            ;set B for positive value inA
+                     BIT   7,A                            ;1f A is positive
+                     JR    Z,POS                          ;skip
+;eee8    LD  b,0FFh                    7A 16 neg: extend sign bit thru 8
+                     DEC   B                              ;Added u0S
 POS                                                       
-                     ADD                                  ;do 8 bit add [and set Carry]
-                     LD                                   ;store result into LSB 16 bit number
-                     INC                                  ;put SB
-                     LD                                   ;into A
-                     ADC                                  ;A = MSB + Carry + B [8B{tsO or FF)
-                     LD                                   ;store result into MSB
-                     DEC                                  ;re-point HL to LSB 16 bit number
+                     ADD   A,[HL]                         ;do 8 bit add [and set Carry]
+                     LD    [HL],A                         ;store result into LSB 16 bit number
+                     INC   HL                             ;put SB
+                     LD    A,[HL]                         ;into A
+                     ADC   A,B                            ;A = MSB + Carry + B [8B{tsO or FF)
+                     LD    [HL],A                         ;store result into MSB
+                     DEC   HL                             ;re-point HL to LSB 16 bit number
                      RET                                  
 
 
@@ -2942,7 +2942,7 @@ __TURN_OFF_SOUND:
 DUMAREA              DEFB  INACTIVE                       
 
 ;       END INITSOU
-                     :                                    
+                                                          ;
 
 
 eeeeeeeeeeeresereseeeeereees                                      
@@ -2961,8 +2961,8 @@ JUKE                 BOX
                      CALL  PT_IX_TO_SXDATA                ;point   IX to SONGNO’s   song  data  area
                      LD    A,[1XX+0]                      ;A  := CH#  [if any]     SONGNO   [if any]
                      AND   3FH                  >A  := 0 O SONGNO 
-                     POP   =—BC                           ;B  := SONGNO
-.                    CP    8                              ;test   ifalready    in progress
+                     POP   BC                             ;B  := SONGNO
+                     CP    8                              ;test   ifalready    in progress
                      RET   2                 '   IF   SO,LEAVE 
 
 ;        *  load  first   note   and  set  NEXT_NOTE  PTR   [thru  LOAD  NEXT_NOTE]
@@ -2977,7 +2977,7 @@ JUKE                 BOX
                      LD    [I1X+2],D0                     
                      CALL  LOAD  _NEXT_NOTE               ;load  note,  byte  0 :=  CH#  SONGNO,   set  new  NEXT NOTE  PTR
                      JR    UP_CH_DATA_PTRS                ;new  song, so  update   channel!  data  ptrs
-                     :                                    
+                                                          ;
 ;        END  JUKEBOX
 
 
@@ -3054,8 +3054,8 @@ TONE                 OUT
                      LD    E,[1X+0]                       ;look   for  inactive  code,   OFFH
                      INC   E                              ;this  sets  Z  flag   if  E = OFFH
                      JR    NZ,L7                          ;if  PSW  is zero  song    data  area    is  inactive
-#448                 CALL  OUT_TO_  SOUND PORT     =      ;turn off  CHx
-*EES                 JR    ~—~6T8S                        
+;#448      CALL      OUT_TO_  SOUND PORT     =;turn off  CHx
+;*ees      JR      ~—~6t8s
                      JP    OUT_TO_SOUND_PORT              ;turn  off  CHx
 
 ;         ELSE  send  out  current    ATN and  FREQ
@@ -3161,7 +3161,7 @@ DONESNOMAN
 
 
 ;SESS SSHHSESHER SHESHEHEEEE
-:¢                   LEAVE_EFFECT                                
+;¢      LEAVE_EFFECT
 ;SPSS  SSSSHHHESSESHEHEHEEEEE
 
 ;LEAVEEFFECT,  called by a special sound effect routine when it’s finished,
@@ -3182,9 +3182,9 @@ __EFFECT_OVER
                      AND   O3FH               :® O O SONGNO 
                      LD    B,A                := 0 O SONGNO [B NOW = ORTGINAL SONGNO] 
                      LD    A,[1X+0],= CHA   62 [ALL EFFECT NOTES HAVE SONGNO  =  62] 
-                     AND   OCOH                  CH¥ O00 0000 
+                     AND   0C0H                  CH¥ O00 0000 
                      OR    B                     CHA   SONGNO 
-                     LD    [IX+0O],A                      ;restore the song number
+                     LD    [IX+0],A                       ;restore the song number
                      JR    EFXOVER                        
 
 
@@ -4061,7 +4061,7 @@ TIMEOUT_IN_READ:
 
 
                      LD    L,[IX*FCB_POINTER]             ;GET  POINTER    INTO  IY  THE   LONG WAY
-E938                 006622 4062           I]         H,[IX+FCB_POINTER+1] 
+                     LD    H,[IX+FCB_POINTER+1]           
 
 NOT_END:                                                  
                      PUSH  HL                             
@@ -4070,96 +4070,3 @@ NOT_END:
 ;*
 ;*  STILL  TRYING    TO CALC  THE  NEW   START   ADOR
 ;=                    .
-                     LD    HL,[NEW_HOLE SIZE]             
-                     LD    [IY+DIR_MAX_LENGTH],L          ;  BLOCKS   LEFT   ON TAPE
-                     LD    [IY+DIR_MAX_LENGTH+1],H        
-
-                     LD    A,[NEW_HOLE_START]             
-                     LD    [IY+DIR_START_BLOCK],A         
-                     LD    A,[NEW_HOLE_START+1]           
-                     LD    [IY+DIR_START_BLOCK+1],A       
-                     LD    A,[NEW_HOLE_START+2]           
-                     LD    [IY+DIR_START_BLOCK+2],A       
-                     LD    A,[NEW_HOLE_START+3]           
-                     LD    [IY+DIR_START_BLOCK+3],A       
-
-                     LD    [IY+DIR_ATTR],ATTR_HOLE        ; SET  HOLE   UP
-
-                     PUSH  IY                             
-                     POP   DE                             
-
-                     LD    HL,HOLE_FILE_NAME              
-                     LD    BC,12                          
-                     LDIR                                 
-
-TIME_TO_WRITE:                                            
-                     LD    A,[IX+FCB  DEVICE]             ;GET PARAMETERS  FROM  FCB
-                     LD    HI,[BUF START]                 
-                     LD    E,[IX+FCB_BLOCK   ]            
-                     LD    0,[1X+FCB_BLOCK+   1]          
-                     LD    C,[1X+FCB_BLOCK+2]             
-                     LD    8B[IX+FCB_BLOCK+3]             
-                     CALL  WRITE  _BLOCK                  ;WRITE  THE BLOCK OUT
-
-                     JR    NZ,MAKE ERROR                  ; IT’S A BOO BOO! !
-E988                 AF    4106            XOR      &     ;SHOW NO  ERROR
-
-LETS_GET_OuT:                                             
-E989                 4106  MAKE_ERROR:                    
-                                                          ;RESTORE  THE REGISTERS
-                     OR    A                                                                                                             ‘ 
-                     POP   BC                             
-                     POP   DE                             
-E9SC                 E1    4193           POP      HL     
-                     POP   IX                             
-                     POP   RY                             
-                     RET                                  
-E992                 4118  TOO_BIG                        
-E982                 3£08  4119            LO       A,TOO  BIG  ERR ;SHOW AN  ERROR
-E994                 18F3  4120            JR       MAKE ERROR 
-                     4121                                 
-                     4122                                 
-E996                 4123  FILE_EXISTS                    
-E996                 3E06  4124            LO       A,FILE_ EXISTS   ERR 
-E988                 1GEF  4125           JR       MAKE ERROR 
-                     4126                                 
-CBBA                 4127  FULL_DIR_EXIT:                 
-ESSA                 3EOC  4126            LO       A,FULL_DIR_ERR 
-ESOC                 18EB  4129            JR       MAKE ERROR 
-                     4130                                 
-ESE                  .     4131  TAPE_FULL                
-ESSE                 3E0D  4132            LO       A,FULL_TAPE_ERR 
-ESAO                 18E7  4133            JR       MAKE ERROR 
-                     4134                                 ;«+
-                     4135                                 ;¢
-                     4136                                 ;*    SUBROUTINE   NAME:  GET  FILE   NAME  LENGTH
-                     4137                                 ;*
-                     4138                                 ;«      ENTRY:   HL- POINTS   TO  TEXT  STRING
-                     4139                                 ;*      EXIT:    Z=1=FOUND   AND  PROPER   SIZE  (1-12)
-                     4140                                 ;*                 BC=BYTE   COUNT
-                     4141                                 ;                  A=TRASHED
-                     4142                                 ;*
-                     4143                                 ;*               Z=O=ERROR
-                     4144                                 ;*                 BC=TRASH
-                     4145                                 ;»                 A=FILE  NAME  _TOO LONG
-                     4146                                 ;* DLS(8/28/83)
-                     4147                                 ;*
-E9A2                 4148  GET_FILE_NM_LEN:               
-E9A2                 E5    4149                     PUSH       HL ;SAVE  THE POINTER  TO  FILE NAME
-E9A3                 O6OC  4150                     LO         B,12 ;SCAN  UP TO 12 BYTE
-E9A5                 O£0!  4151                     LD         C,1 ;SET COUNT  TO 1
-ESAT                 4152  SRCH_LOOP:                     
-EQA7                 7E    4153                     LD        A,[HL] ;GET FN(1)
-E9A8                 FEO3  4154                     CP        03                         SETX 
-EQAA                 2809  4155                     UR        2,GOT_IT 
-                     4156                                 ;*
-E9AC                 OC    4157                     INC       C 
-E9AD                 23    4158                     INC       HL ;ADVANCE POINTER  TO FILE  NAME  STRING
-EQAE                 10F7  4159                     DUNZ      SRCH_LOOP 
-                     4160                                 ;¢
-E9B0                 4161  ERR_GFN                        
-E9BO                 3E0E  4162                     LD        A,FILE_NM_ERR 
-                     OR    A                              ;SHOW ERROR
-E983                 E1    4164                     POP       HL 
-984                  C9    4165                     RET   
-                     4166                                 ;*
