@@ -316,6 +316,7 @@ def coleco_formatter(filename, memory, raw_bytes):
     a = open(asm_filename, "w")
     
     next_possible_address = 0
+    current_address = 0
     
     pauser = 86
     text_line = " "
@@ -336,12 +337,6 @@ def coleco_formatter(filename, memory, raw_bytes):
         if linenumber == stop_at_line:
             print("stopping processing")
             break
-       
-        if linenumber >= pauser:
-            print(f"force_address: {force_address}")
-            print(f"[{linenumber}] {text_line}")
-            print(f"1next possible address: {hex(next_possible_address)}")
-            pass
         
         column = find_linenumber(text_line, linenumber)
         if column < 0:
@@ -372,37 +367,49 @@ def coleco_formatter(filename, memory, raw_bytes):
         ignore_line = original_post_linenumber_no_comment.find("^") > 0
         
         # deal with ORGs which change our current address pointer
-        if original_post_linenumber_no_comment.find("ORG") > 0:
-            temp = original_post_linenumber_no_comment.split("ORG")
+        if original_post_linenumber_no_comment.find(" ORG ") > 0:
+            temp = original_post_linenumber_no_comment.split(" ORG ")
             variable = temp[0].strip()
             value    = temp[1].strip()
             
             evaluated = False
             
             if value == '$':
+                print("current_address substituted")
                 value = current_address
                 evaluated = True
             
+            error = ""
             if not evaluated:           
                 try:
                     variable = 'current_address='+value
                     exec(variable)
+                    next_possible_address = current_address
                     evaluated = True
-                except:
+                except Exception as e:
+                    error += f"ORG1 {variable}\n"
+                    error += f"ORG1 [{linenumber}] '{original_post_linenumber_no_comment}'\n"
+                    error += str(e)+"\n"
                     pass
                 
             if not evaluated:
                 try:
                     variable = 'current_address=hex(0x'+value[:len(value)-1]+')'
                     exec(variable)
-                    evaluted = True
-                except:
+                    next_possible_address = current_address
+                    evaluated = True
+                except Exception as e:
+                    error += f"ORG2 {variable}\n"
+                    error += f"ORG2 [{linenumber}] '{original_post_linenumber_no_comment}'\n"
+                    error += str(e)+"\n"
                     pass
             
+            if not evaluated:
+                print("*****\nORG ERROR:\n"+error+"\n******")
 
         # deal with EQUs which change our current address pointer
-        if original_post_linenumber_no_comment.find("EQU") > 0:
-            temp = original_post_linenumber_no_comment.split("EQU")
+        if original_post_linenumber_no_comment.find(" EQU ") > 0:
+            temp = original_post_linenumber_no_comment.split(" EQU ")
             variable = temp[0].strip()
             value    = temp[1].strip()
             
@@ -412,126 +419,31 @@ def coleco_formatter(filename, memory, raw_bytes):
                 value = current_address
                 evaluated = True
             
+            error = ''
             if not evaluated:           
                 try:
                     temp = variable+'='+value
                     exec(temp)
                     evaluated = True
-                except:
+                except Exception as e:
+                    error += f"EQU1 '{temp}'\n"
+                    error += f"EQU1 [{linenumber}] '{original_post_linenumber_no_comment}'\n"
+                    error += str(e)+"\n"
                     pass
                 
             if not evaluated:
                 try:
                     temp = variable+'=hex(0x'+value[:len(value)-1]+')'
                     exec(temp)
-                    evaluted = True
-                except:
+                    evaluated = True
+                except Exception as e:
+                    error += f"EQU2 {temp}\n"
+                    error += f"EQU2 [{linenumber}] '{original_post_linenumber_no_comment}'\n"
+                    error += str(e)+"\n"
                     pass
  
-        storage = original_post_linenumber_no_comment.find("DEFS") > 0
-                    
-        #if org_found:
-        #    print("org_found")
-        #    FC30 C3F832   
-        new_preline = ""
-        if not ignore_line:
-            if equ_address != "":
-                equ_address = "<" + equ_address + ">"           
-            else:
-                # see if we have an instruction address
-                instr_address_column = find_instruction_address(original_post_linenumber_no_comment)
-                if instr_address_column > 0:
-                    # get the address
-                    (instr_address, error, error_type) = get_instruction_address(original_post_linenumber_no_comment, instr_address_column)
-
-                    if error != "":
-                        error_count += display_error(text_line, error, linenumber, display_line, error_type)
-     
-                    if next_possible_address != 0:
-                        current_address = int(instr_address,16)
-                        if (current_address != next_possible_address) and (current_address != last_address):
-                            possible_address = str(hex(next_possible_address)).upper()[2:]
-                            print(f"[{linenumber}] Warning: got address {instr_address}, using {possible_address}")                      
-                            instr_address = possible_address
-                            warning_count += 1                               
-     
-                    if instr_address in memory:
-                        if linenumber >= pauser:
-                            print(f"!****[{linenumber}] {original_post_linenumber_no_comment[storage_amount:]}")
-                            print(f"!****instr_address: '{instr_address}'")
-                            print(f"!****instr_data:    '{instr_data}'")
-                            pass
-                        
-                        last_address = int(instr_address,16)
-                        instr_data = memory[instr_address]
-                        if storage:
-                            storage_amount = original_post_linenumber_no_comment.find("DEFS") + 4
-                            amount = original_post_linenumber_no_comment[storage_amount:]                      
-                            
-                            if linenumber >= pauser:
-                                print (f"***[{linenumber}] '{original_post_linenumber[storage_amount:]}'")
-                                pass
-                            try:
-                                amount = amount.strip()
-                                amount = eval(amount)    
-                                next_possible_address = int(int(instr_address,16) + amount)
-                                if linenumber >= pauser:
-                                    print(f"3*calculated next possible address: {hex(next_possible_address)}")
-                                    pass
-                            except:
-                                print(f"***'{original_post_linenumber}'")
-                                print(f"***[{linenumber}] can't eval '{amount:}' Octal?")
-                                next_possible_address = 0
-                        else:
-                            next_possible_address = int(int(instr_address,16) + len(instr_data)/2)
-                            if linenumber >= pauser:
-                                print(f"instr_address: '{instr_address}'")
-                                print(f"instr_data: '{instr_data}'")
-                                print(f"3b*calculated next possible address: {hex(next_possible_address)}")
-                                pass
-                    else:
-                        
-                        possible_address = str(hex(next_possible_address))
-                        possible_address = possible_address.upper()[2:]
-               
-                        print(f"@[{linenumber}] address {instr_address} not in disassembly; using address: "+possible_address)
-                        instr_address = possible_address
-                        
-                        if instr_address in memory:
-                            force_address = False
-                            last_address = int(instr_address,16)
-                            instr_data = memory[instr_address]
-                            if storage:
-                                storage_amount = original_post_linenumber_no_comment.find("DEFS") + 4
-                                print (f"@@@[{linenumber}] {original_post_linenumber[storage_amount:]}")
-                                amount = original_post_linenumber_no_comment[storage_amount:]
-                        
-                            
-                                try:
-                                    amount = eval(amount)    
-                                    next_possible_address = int(int(instr_address,16) + amount)
-                                    if linenumber >= pauser:
-                                        print(f"4@@@calculated next possible address: {hex(next_possible_address)}")
-                                        pass
-                                except:
-                                    print(f"@@@[{linenumber}] can't eval '{original_post_linenumber[storage_amount:]}'")
-                
-                                    next_possible_address = 0
-                            else:
-                                next_possible_address = int(int(instr_address,16) + len(instr_data)/2)
-                                if linenumber >= pauser:
-                                    print(f"5!calculated next possible address: {hex(next_possible_address)}")
-                                    pass
-                        else:
-                            print(f"possible address didn't exist!")
-                            warning_count += 1
-                        
-                        #instr_data_column = find_instructions(original_pre_linenumber, instr_address_column)
-                        #if instr_data_column > 0:               
-                        #    (instr_data, error, error_type) = get_instructions(original_pre_linenumber)             
-                           
-                        #    if error != "":
-                        #        error_count += display_error(text_line, error, linenumber, display_line, error_type)
+            if not evaluated:
+                print("*****\nEQU ERROR:\n"+error+"\n******")
                         
         
         if error_count >= max_errors:
@@ -588,9 +500,7 @@ def coleco_formatter(filename, memory, raw_bytes):
         
         # if it's a comment, don't do anymore processing
         if len(line) > 0:
-            
-
-                     
+                          
             if special:
                 new_post_linenumber = line
             else:
@@ -666,12 +576,14 @@ def coleco_formatter(filename, memory, raw_bytes):
         o.write(newline + "\n")
         a.write(new_post_linenumber + "\n")
     
+    locals()
+    
     print(f"{error_count} corrections required")
     print("Completed")
     o.close()
     a.close()
-    f.close()  
-    
+    f.close()
+
 def disassembled_bytes(filename):
     print("reading bytecodes")
     f = open(filename, "r")
@@ -760,14 +672,16 @@ def instruct_size():
     
     return isize
 
+
 def main():
     directory = os.getcwd()
     filename = "coleco-listing.txt"
     disassembled = "EOS.disassembly"
     rom = "EOS.BIN"
-    memory = disassembled_bytes(disassembled)
-    raw_bytes = raw_bytecodes(rom)
-    
+    #memory = disassembled_bytes(disassembled)
+    #raw_bytes = raw_bytecodes(rom)
+    memory = ''
+    raw_bytes = ''
     coleco_formatter(os.path.join(directory,filename), memory, raw_bytes)
     
 main()

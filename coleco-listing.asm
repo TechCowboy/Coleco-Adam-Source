@@ -94,20 +94,20 @@ SUPERGAME            EQU   FALSE
 ;
 ;FCB_S         EQU     0D390H                  ;FCB area
 ;THREE1K_BLKS  EQU     00400H                  ;3 FCB 1K buffers
-EOSCODE              EQU   0E000H                         ;address of EOS code segment
-EOS_GLBTBL           EQU   0FBFFH                         ;address of EOS global tables
-EOS_UMP_TBL          EQU   0FC30H                         ;address of EOS jump table
-EOSGL_RAM            EQU   0FD60H                         ;address of EOS global data  area
-EOSPCB_OCB           EQU   0FEC0H                         ;address of EOS PCB/DCB areas
+EOS_CODE             EQU   0E000H                         ;address of EOS code segment
+EOS_GLB_TBL          EQU   0FBFFH                         ;address of EOS global tables
+EOS_JMP_TBL          EQU   0FC30H                         ;address of EOS jump table
+EOS_GLB_RAM          EQU   0FD60H                         ;address of EOS global data  area
+EOS_PCB_DCB          EQU   0FEC0H                         ;address of EOS PCB/DCB areas
 
 ;
 ;  These are key record sizes, used  invarious EOS routines.
-;  See “INCLUDE FMGR_EQUS* AND “INCLUDE P_DCB_EQU* for details.
+;  See “INCLUDE FMGR_EQUS" AND “INCLUDE P_DCB_EQU" for details.
 ;
 
 DIR_ENT_LENGTH       DEFL  26                             
 P_SIZE               DEFL  4                              ;THE NUMBER OF BYTES IN THE PCB
-DSIZE                DEFL  21                             ;THE NUMBER OF BYTES  INTHE DCB
+D_SIZE               DEFL  21                             ;THE NUMBER OF BYTES  INTHE DCB
 ;
 ;
 ;
@@ -131,7 +131,7 @@ _DLY_AFT_HRD_RES     EQU   $
                      JP    __DLY_AFT_HRD_RES              
 _END_PR_BUFF         EQU   $                              
                      JP    __END_PR_BUFF                  
-_ENDPR_CH            EQU   $                              
+_END_PR_CH           EQU   $                              
                      JP    __END_PR_CH                    
 _END_RD_1_BLOCK      EQU   $                              
                      JP    __END_RD_1_BLOCK               
@@ -243,7 +243,7 @@ _RENAME_FILE         EQU   $
                      JP    __RENAME_FILE                  
 _DELETE_FILE         EQU   $                              
                      JP    __DELETE_FILE                  
-_RO_DEV_DEP_STAT     EQU   $                              
+_RD_DEV_DEP_STAT     EQU   $                              
                      JP    __RD_DEV_DEP_STAT              
 _GOTO_WP             EQU   $                              
                      JP    __GOTO_WP                      
@@ -263,7 +263,7 @@ _SCAN_FOR_FILE       EQU   $
                      JP    __SCAN_FOR_FILE                
 _FILE_QUERY          EQU   $                              
                      JP    __FILE_QUERY                   
-_POSIT_FILE          EQU   ¢$                             
+_POSIT_FILE          EQU   $                              
                      JP    __POSIT_FILE                   
 _EOS_1               EQU   $                              
                      JP    __EOS_1                        
@@ -291,7 +291,7 @@ READ_VRAM            EQU
                      JP    __READ_VRAM                    
 WRITE_REGISTER       EQU                                  
                      JP    __WRITE_REGISTER               
-READREGISTER         EQU                                  
+READ_REGISTER        EQU                                  
                      JP    __READ_REGISTER                
 FILL_VRAM            EQU                                  
                      JP    __FILL_VRAM                    
@@ -319,12 +319,12 @@ DECMSN               EQU   $
                      JP    __DECMSN                       
 MSNTOLSN             EQU   $                              
                      JP    __MSNTOLSN                     
-ADDS_16              EQU   $                              
-                     JP    __ADDS_16                      
+ADD816               EQU   $                              
+                     JP    __ADD816                       
 SOUND_INIT           EQU   $                              
                      JP    __SOUND_INIT                   
 TURN_OFF_SOUND       EQU   $                              
-                     JP    __TURN OFF  SOUND              ;not globalized    in os7?
+                     JP    __TURN OFF_SOUND               ;not globalized    in os7?
 PLAY_IT              EQU   $                              
                      JP    __PLAY_IT                      
 SOUNOS               EQU   $                              
@@ -362,7 +362,7 @@ EFFECT_OVER          EQU   $
 ;MEM_CNFGOO     EQU     $+24
 ;;              ;GLB     SWITCHTABLE
 ;SWITCH_TABLE   EQU     MEMCNFGOO
-;:              ;GLB     MEMCNFGOI
+;;              ;GLB     MEMCNFGOI
 ;MEM_CNFGO1     EQU     $+25
 ;;              ;GLB     MEMCNFGO2
 ;MEM_CNFGO2     EQU     $+26
@@ -425,7 +425,7 @@ EFFECT_OVER          EQU   $
 
 ; ************************************************
 
-                     ORG   €0S_GLB_RAM                    
+                     ORG   EOS_GLB_RAM                    
 
 ; ************************************************
 
@@ -465,7 +465,7 @@ COLORTABLE           DEFS  2
                      DEFS  2*6+1                          
                      ENDIF                                
                                                           ;GLB     CUR_BANK
-CURBANK              DEFS  [                              
+CURBANK              DEFS  1                              
 
 
 ;
@@ -474,7 +474,7 @@ CURBANK              DEFS  [
                                                           ;GLB      DEFAULTBT  DEV
                                                           ;GLB      CURRENTDEV
 
-OEFAULTBT            _DEV:                                
+OEFAULTBT_DEV:                                            
 CURRENTDEV:                                               
                      DEFS  1                              
 
@@ -509,7 +509,7 @@ SECTORS_TO_INIT:
                      DEFS  1                              
 
 SECTOR_NO:                                                
-                     DEFS  S                              
+                     DEFS  4                              
 
                                                           ;GLB      DCB_IMAGE
 
@@ -616,7 +616,7 @@ EOS_STACK:
 ;
 SPIN_SWO_CT          DEFS  1                              ; THESE  TWO BYTES MUST BE IN THIS ORDER!!!
 SPIN_SW1_CT          DEFS  1                              
-PERSONAL_DEBOUNCE_TABLE DEFS  08                             
+PERSONAL_DEBOUNCE_TABLE DEFS  8                              
                      DEFS  12                             ;USED BY TEMP_STACK
 TEMP_STACK           EQU   $                              ;Used by put_ascii when bank switching
 
@@ -658,7 +658,7 @@ UPPER_LEFT           DEFS  2
 PTRN_NAME_TBL        DEFS  2                              
 CURSOR               DEFS  2                              
 
-                                                          ;GLB        CLEAR_RAM  SIZE
+                                                          ;GLB        CLEAR_RAM_SIZE
 
 CLEAR_RAM_SIZE       EQU   [$-CLEAR_RAM_START]            
 
@@ -667,7 +667,7 @@ CLEAR_RAM_SIZE       EQU   [$-CLEAR_RAM_START]
 ;
 ;***********************************************************************
 
-                     ORG   EOS_PCB_OCB                    
+                     ORG   EOS_PCB_DCB                    
 
 ;***********************************************************************
 
@@ -979,18 +979,18 @@ LOC_IN_ALPHA         EQU   0102H                          ;potnter  to  ascii  g
 
 
 ; Offsets  into a volume   descriptor  (the first entry in the directory).
-VOL_NAME             EQU   O                              ;LOGICALVOLUME NAME
+VOL_NAME             EQU   0                              ;LOGICALVOLUME NAME
 VOL_DIRSIZE          EQU   12                             ;*ee7 BITS ONLY *** # BLOCKS IN DIRECTORY
-VOL_ATTR             EQU   12                             ;**eTOP BIT ONLY ¢**+SET FOR DELETE  PROTECTION
+VOL_ATTR             EQU   12                             ;**eTOP BIT ONLY ***SET FOR DELETE  PROTECTION
 VOL_DIR_CHECK        EQU   13                             ;CONTAINS 4 UNIQUE BYTES FOR DIRECTORY   EXISTENCE   VERIFICATION
 VOL_SIZE             EQU   17                             ;VOLUMESIZE (IN BLOCKS) (4 BYTES)
-VOL_YEAR             EQU   23        :                    ;CREATIODATE -- YEAR
-VOL_MONTH            EQU   24        :                MONTH 
+VOL_YEAR             EQU   23                             ;CREATIODATE -- YEAR
+VOL_MONTH            EQU   24                             ;                MONTH
 VOL_DAY              EQU   25                             ;                & DAY
 VOL_DES_LENGTH       EQU   26                             
 
 ; Offsets  into a directory   entry.
-DIR_NAME             EQU   O                              ;FILE NAME
+DIR_NAME             EQU   0                              ;FILE NAME
 DIR_ATTR             EQU   12                             ;FILE ATTRIBUTE BYTE
 DIR_START_BLOCK      EQU   13                             ;STARTING BLOCK4
 DIR_MAX_LENGTH       EQU   17                             ;TOTAL #4BLOCKS ALLOCATED
@@ -1007,7 +1007,7 @@ ENT_PER_BLOCK        EQU   1024/26                        ;NUMBEROF ENTRIES PER 
 
 ; Copy of  DIR entry
 
-FCB_NAME             EQU   O                              ;FILE NAME
+FCB_NAME             EQU   0                              ;FILE NAME
 FCB_ATTR             EQU   12                             ;FILE ATTRIBUTE BYTE
 FCB_START_BLOCK      EQU   13                             ;STARTING BLOCK ¥#
 FCB_FIRST_BLOCK      EQU   FCB_START_BLOCK                
@@ -1015,7 +1015,7 @@ FCB_MAX_LENGTH       EQU   17                             ;TOTAL # BLOCKS ALLOCA
 FCB_USED_LENGTH      EQU   19                             ;# OF BLOCKS USED (FULL + 1 PARTIAL)
 FCB_LAST_COUNT       EQU   21                             ;NUMBER OF BYTES IN LAST PARTIAL BLOCK
 
-FCB_STORED_BYTES     EQU   FCB_LAST COUNT+1               ; NUMBER OF BYTES STORED  ON DEVICE
+FCB_STORED_BYTES     EQU   FCB_LAST_COUNT+1               ; NUMBER OF BYTES STORED  ON DEVICE
                                                           ; ... THE UPPER HALF OF THIS  FCB  EQU  LIST
 
 FCB_DEVICE           EQU   26-3                           ;NUMBER OF DEVICE CONTAINING  FILE
@@ -1029,16 +1029,16 @@ FCB_LENGTH           EQU   38-3
 ;*
 ;* PROTECTED  MODE EQUATES
 ;*
-MODE_UNUSED          EQU   O                              ;MANY PEOPLE ASSUME THIS IS ZERO!
-MODE_READ            EQU   MODEUNUSED+1                   
-MODE_WRITE           EQU   MODEREAD+1                     
-MODE_UPDATE          EQU   MODEWRITE+1                    
-MODE_EXEC            EQU   MODEUPDATE+1                   
-MODE_MAX             EQU   MODEEXEC+O                     
+MODE_UNUSED          EQU   0                              ;MANY PEOPLE ASSUME THIS IS ZERO!
+MODE_READ            EQU   MODE_UNUSED+1                  
+MODE_WRITE           EQU   MODE_READ+1                    
+MODE_UPDATE          EQU   MODE_WRITE+1                   
+MODE_EXEC            EQU   MODE_UPDATE+1                  
+MODE_MAX             EQU   MODE_EXEC+0                    
 ;*
 MODE_REMAINDER_BIT   EQU   5                              ; INDICATES TO ALLOCATE REST  OF  TAPE
 MODE_DIRTY_BIT       EQU   6                              ; TEST BIT 6
-MODE_DIRTY           EQU   010000008,INOICATES MODIFIED BUFFER 
+MODE_DIRTY           EQU   010000008                      ;INOICATES MODIFIED BUFFER
 MODE_LAST_BLOCK_BIT  EQU   7                              ; TEST BIT 7
 MODE_LAST            EQU   100000008                      ;INDICATES LAST BLOCK OF FILE
 MODE_MODE            EQU   000001118                      ;BITS TO STORE MODES
@@ -1064,7 +1064,7 @@ NUM_FCBS             EQU   3                              ;1 FOR THE SYSTEM, 2 F
 
 DCB_NOT_FOUND        EQU   1                              ;  THERE WAS NO DCB FOR  THE  DEVICE  REQUESTED.
 DCB_BUSY             EQU   2                              ;  OCB IS BUSY
-OCB_IDLE_ERR         EQU   3                              ;  OCB IS IOLE
+DCB_IDLE_ERR         EQU   3                              ;  OCB IS IOLE
 
 NO_DATE_ERR          EQU   4                              
 NO_FILE_ERR          EQU   5                              
@@ -1085,8 +1085,8 @@ CANT_SYNC1           EQU   18
 CANT_SYNC2           EQU   19                             
 PRT_ERR              EQU   20                             
 
-RQTP_STAT_ERR        EQU   21                             
-DEVICE_DEPD_ERR      EQU   22,                            
+RQ_TP_STAT_ERR       EQU   21                             
+DEVICE_DEPD_ERR      EQU   22                             
 PROG_NON_EXIST       EQU   23                             ; PROGRAM DOES NOT  CURRENTLY   EXIST
 NO_DIR_ERR           EQU   24                             ; NO DIRECTORY ON  TAPE
 
@@ -1097,11 +1097,11 @@ NO_DIR_ERR           EQU   24                             ; NO DIRECTORY ON  TAP
 
 ;PCB EQUATES
 
-P_COM_STAT           EQU   O                              ; THIS  IS  THE COMMAND/STATUS     BYTE
+P_COM_STAT           EQU   0                              ; THIS  IS  THE COMMAND/STATUS     BYTE
 
 P_REL_ADDR           EQU   1                              ; THIS  IS  THE RELOCATION    ADDRESS
-P_REL_AODR_LO        EQU   P_REL_ADDR+O                   
-P_REL_ADOR_HI        EQU   P_REL_ADOR+1                   
+P_REL_AODR_LO        EQU   P_REL_ADDR+0                   
+P_REL_ADOR_HI        EQU   P_REL_ADDR+1                   
 
 P_NUM_DCBS           EQU   3                              ; THIS  IS  THE NUMBER   OF  DCBS  DEFINED
 
@@ -1119,7 +1119,7 @@ D_BUF_ADR_LO         EQU   D_BUF_ADR+0
 D_BUF_ADR_HI         EQU   D_BUF_ADR+1                    
 
 D_BUF_LEN            EQU   3                              ; THE  LENGTH   OF THE  DATA  BUFFER
-D_BUF_LEN_LO         EQU   D_BUF_LEN+O                    
+D_BUF_LEN_LO         EQU   D_BUF_LEN+0                    
 D_BUF_LEN_HI         EQU   D_BUF_LEN+1                    
 
 D_SECT_NUM           EQU   5                              ; THE  BLOCK  DEVICE   SECTOR   NUMBER
@@ -1128,7 +1128,7 @@ D_SEC_DEV_ID         EQU   9                              ; SECONDARY   DEVICE  
 
 D_RET_COUNT          EQU   14                             ; THE  NUMBER   OF TIMES  A  COMMAND   WILL
                                                           ; BE  RETRIED.
-D_RET_COUNT_LO       EQU   D_RET COUNT+0                  
+D_RET_COUNT_LO       EQU   D_RET_COUNT+0                  
 D_RET_COUNT_HI       EQU   D_RET_COUNT+1                  
 
 D_DEV_ADDR           EQU   16                             ; THE  DEVICE   ADDRESS  (1D)
@@ -1183,14 +1183,14 @@ PCB_WAIT_ACK         EQU   PCB_WAIT+80H
 ;DCB COMMAND   EQUATES
 
 DCB_IDLE             EQU   00                             ;
-DCB_STATUS           EQU   O1                             ; REQUEST STATUS
+DCB_STATUS           EQU   01                             ; REQUEST STATUS
 DCB_RESET            EQU   02                             ; RESET NODE
 DCB_WR               EQU   03                             ; WRITE DATA TO DEVICE
 DCB_RD               EQU   04                             ; READ DATA FROM DEVICE
 
 
 
-INIT_PCB_ADDR        EQU   OFECOH                         ; INITIAL ADDRESS  OF  THE PCB
+INIT_PCB_ADDR        EQU   0FEC0H                         ; INITIAL ADDRESS  OF  THE PCB
 
 FCB_S                EQU   0D390H                         ; FCB HEADER AREA
 THREE1K_BLKS         EQU   0D400H                         ; 3K FCB DATA AREA
@@ -1198,21 +1198,21 @@ THREE1K_BLKS         EQU   0D400H                         ; 3K FCB DATA AREA
 
 ;GENERAL  USAGE  EQUATES    FOR USE WITH  DCB INFO
 
-CMND_COMPLETE_BIT    EQU   7        - THIS IS THE BIT  THAT  INDICATES   THE 
+CMND_COMPLETE_BIT    EQU   7                              ; THIS IS THE BIT  THAT  INDICATES   THE
                                                           ; COMMAND HAS BEEN  PROCESSED.
 CMND_FIN_STATUS      EQU   80H                            ; THIS IS THE STATUS  OF  A COMMAND
                                                           ; THAT COMPLETED WITH  NO  ERRORS
 KBD_NAK              EQU   BCH                            ; INDICATES NO KEY  READY
 
-PR_NAK               EQU   86H      - INDICATES THE PRINTER   IS BUSY 
+PR_NAK               EQU   86H                            ; INDICATES THE PRINTER   IS BUSY
 
 ETX                  EQU   03H                            ; END OF DATA STRING INOICATOR
 
 TIMEOUT              EQU   9BH                            ; DEVICE TIMED OUT
 ;
-;PSSSRSSTSSSSTETSSTTTSRTSSRSTITSSSTERSSOREARSTEKS SsESesserzsrst=s=
-;PSSSTSSSSSBSSESSSSSSSSBSESTSSFSSFSSSSSTSSSSSTSESASESSETSSSTSEsrzrere
-;SSSSESERBRESESESSSSSSSseseserestsrerrsr=sesezsz2eserrerczresrrerzezcoersrses2erezrror=z=2
+;****************************************************************************************
+;****************************************************************************************
+;****************************************************************************************
 ;
 SKIP                                                      
 
@@ -1223,11 +1223,11 @@ NAME ^Rev O7 - jki^
 
 ; Project:      ADAM, 83-101
 
-;      SRSSHKSHAAKSHSESAEARSSAERSESEESH   EKHEKESHRSHEHEKERERE EEES
+;****************************************************************************************
 ;      sees                                                    eeee
 ;      eeee             A_uO000              RPD               seee
 ;     eee                                                     ess
-;      SSHSHAKHSESHSARHESS ERHSEEHE EHTS             EEREREKERETESS
+;****************************************************************************************
 ;
 ;
 ;        Rev History
@@ -1258,19 +1258,19 @@ NAME ^Rev O7 - jki^
 
 
 
-;SSESSSSSSeSSe  soe eseseSeseeeee  seeseseee ee eee eee seeseeeoee eee  eeaseee
+;****************************************************************************************
 
                      ORG   EOS_CODE                       
 
-;SSSSHSSHSSHHS   SESHSSHHEHEHSH ESE  ESE  SEHEHEHESEEEE  HEHEHE    SRESEESESE  EEE
+;****************************************************************************************
 
 ;   Name:                WRITE_VRAM
 ;
-;   Function:            Writes    to  VRAM   the   contents    of   the  data    ina   buffer    area.
+;   Function:            Writes to VRAM the contents of the data in a buffer area.
 ;
-;   Entry:               BC  -  number    of  bytes    to  be  written
-;                        DE  -  starting     VRAM   address    to  be  written     to
-;                        HL  -  address    of  buffer    containing      the   data
+;   Entry:               BC  -  number of bytes to be written
+;                        DE  -  starting VRAM address to be written to
+;                        HL  -  address of buffer containing the  data
 ;
 ;   Exit:                None.
 ;
@@ -1316,13 +1316,13 @@ OUT_DEC_HI_BYTE:
                      RET                                  
 
 ;
-;   Name:                   READ _VRAM
+;   Name:                   READ_VRAM
 ;
-;   Function:               Reads   from  VRAM    and   puts    the  read   data    into  a  buffer    area.
+;   Function:               Reads from VRAM and puts the read data into a buffer area.
 ;
-;   Entry:                  BC  - number    of  bytes    to   be  read
-;                           DE  - starting     VRAM   address      to be   read   from
-;                           HL  - address    of   buffer     to  receive    the   read   data
+;   Entry:                  BC  - number of bytes to be read
+;                           DE  - starting VRAM address to be read from
+;                           HL  - address of buffer to receive the read data
 ;
 ;   Exit:                   None.
 ;
@@ -1331,15 +1331,15 @@ OUT_DEC_HI_BYTE:
 ;   Size:                   ROM  - 22  bytes
 ;                           RAM  - O  bytes
 ;
-;   Comments:               This  version    of   READ  VRAM     its provided     for  stand    alone   operation.
-;                           NOTE:  The   {OOH   bug   found     tn OS   7 has   been   corrected.
+;   Comments:               This  version of READ_VRAM is provided for stand alone operation.
+;                           NOTE:  The 1OOH bug found in OS 7 has been corrected.
 ;
-;   Comparision:            left  out  pascal     entry   point
+;   Comparision:            left  out pascal entry point
 ;                           code  compacted
-;                           100H  bug  fixed
-;                           edited   for  documentation
+;                           100H  bug fixed
+;                           edited for documentation
 ;
-
+__READ_VRAM:                                              
                      PUSH  BC                             ;BC  has   the  number    of  bytes    to  xfer
                      EX    DE,HL                          ;HL<--vram     addr  ,DE<--source      address  .
                      CALL  SET READ                       ;pump   the  vram   addr    to  the   vdp
@@ -1348,34 +1348,34 @@ OUT_DEC_HI_BYTE:
                      EX    DE,HL                          ;HL<--source      address,port       ine
                      LD    A,C                               :SAVE    LOW  ORDER    OF  COUNT    INA 
                      LD    C,E                            ;  And   get  the   port   into   C
-                     LD    0,8                            ;Get   HI  order    count    in OD
+                     LD    D,8                            ;Get   HI  order    count    in OD
                                                           ;  to  free   up  B  for   tow   order   count
                      INC   D                                  >INCREMENT     HI  COUNT   TO   COVER 
                                                           ;  for   O  tn  DEC  D  after    tow   loop
                      LD    B,A                            ;Put   low   order   in  86 for   OUTI
                      OR    A                              ;Check    if  tow   order   is   zero   the  first     time
-                     JR    Z,IN_DEC_HI_   BYTE            ;If   so  then   decrement     Hi  count    before     low   loop
+                     JR    Z,IN_DEC_HI_BYTE               ;If   so  then   decrement     Hi  count    before     low   loop
 INPUT_LOOP:                                               
                      INI                                  ;DATA_PORT      = buffer   data      read   the  data     from   to    the   VDP
                                                           ;for   INI:   [C]}  <--  [HL],    B  =  B  -  1 amd    HL  =  HL   +   1
                      NOP                                  ;delay    for   slow   VDP
                      NOP                                  
-                     JR    NZ,INPUT  _LOOP                ;until    byte   count   low   (B  reg)    = O
+                     JR    NZ,INPUT_LOOP                  ;until    byte   count   low   (B  reg)    = O
 IN_DEC_HI_BYTE:                                           
                      DEC   D                              ;byte   count    high   = byte    count    high   -   1
-                     JR    NZ,INPUT    LOOP                   SUNTIL    BYTE   COUNT   HIGH    [A  REG]   =  O 
+                     JR    NZ,INPUT_LOOP                   SUNTIL    BYTE   COUNT   HIGH    [A  REG]   =  O 
                      RET                                  
 
 ;
-;   Name:                 WRITE REGISTER
+;   Name:                 WRITE_REGISTER
 ;
-;   Function:             Writes  a data   byte   vaiue    to  a destred    VDP  registe:
+;   Function:             Writes a data byte vaiue to a desired VDP register
 ;
-;   Entry:                8 - register    number    to  write   to
-;                         C - data  byte   value    to  be  written
+;   Entry:                B - register number to write to
+;                         C - data byte value to be written
 ;
-;   Exit:                 if register   number    =  0  or  ft, the  respective    byte
-;                         of the  VDP_MODE   WORD    is  updated.
+;   Exit:                 if register number = 0 or 1, the  respective byte
+;                         of the VDP_MODE_WORD is updated.
 ;
 ;   Registers     used:   A,BC,E
 ;
@@ -1413,40 +1413,40 @@ CHK_REG_1:
 
 
 
-;     Name :                READ   REGISTER
+;     Name:                 READ_REGISTER
 ;
-;     Function:             Reads     a data     byte   value   from    the   Colecovision       CTRL  PORT.
+;     Function:             Reads a data byte value from the Colecovision CTRL_PORT.
 ;
 ;     Entry:                None.
 ;
-;     Exit:                 A  -  data     byte   value    read   in
+;     Exit:                 A  -  data byte value read in
 ;
-;     Registers     used:   A,C
+;     Registers used:       A,C
 ;
-;     Size:                 ROM   -   3 bytes
+;     Size:                 ROM   -  3 bytes
 ;                           RAM   -  O  bytes
 ;
-;     Comments:             This   version       of  READ  REGISTER       is  provided     for   stand   alone     operation.
-;                           This   routine       does   a direct    access      to  the   COLECOVISION       I/0   ports.
+;     Comments:             This version of READ_REGISTER is provided for stand alone operation.
+;                           This routine does a direct access to the COLECOVISION I/O ports.
 ;
-;     Comparision:          edited     for   documentation
+;     Comparision:          edited for documentation
 ;
-READ                 REGISTER:                                
+__READ_REGISTER:                                          
                      LD    A,[VOP_CTRL_PORT]              
                      LD    C,A                            
                      IN    A,[C]                          ;get    the   data   from   CTRL_PORT
-                     LD    [VOP_STATUS      BYTE],A       ;Save    a  copy    of  VDP   status    data
+                     LD    [VOP_STATUS_BYTE],A            ;Save    a  copy    of  VDP   status    data
                      RET                                  
 
 
 ;
-;   Name:               FILLVRAM
+;   Name:               FILL_VRAM
 ;
-;   Function:           Fill a VRAM  memory  buffer  with a constant  byte value.
+;   Function:           Fill a VRAM memory buffer with a constant byte value.
 ;
-;   Entry:              A - constant  byte  vaiue to  be written
-;                       DE - number  of  bytes itnthe  VRAM memory  buffer
-;                       HL - starting   VRAM address  to be written  to
+;   Entry:              A - constant byte vaiue to be written
+;                       DE - number of bytes in the VRAM memory buffer
+;                       HL - starting VRAM address to be written to
 ;
 ;   Exit:               None.
 ;
@@ -1454,12 +1454,12 @@ READ                 REGISTER:
 ;
 ;    Size:               ROM - 18 bytes
 ;                        RAM - O bytes
-;                     -
-;    Comments:           This version  of  FILL_VRAM  is provided  for stand alone operation.
-;                        This routine  does  a direct  access to  the COLECOVISION I/O ports.
 ;
-;    Comparision:        edited for  documentation
-;                        uneeded call   to READREGISTER   taken  out
+;    Comments:           This version of FILL_VRAM is provided for stand alone operation.
+;                        This routine does a direct access to the COLECOVISION I/O ports.
+;
+;    Comparision:        edited for documentation
+;                        uneeded call to READ_REGISTER taken out
 
 
 FILL_VRAM:                                                
@@ -1477,21 +1477,21 @@ FILL:                                                     ;repeat
 
 ;
 ;
-;   Name:                  INIT TABLE
+;   Name:                  INIT_TABLE
 ;
-;   Function:              INIT TABLE     initializes     the addresses     cf  the  VRAM    tabies.
-;                          The passed    address    is  converted    to  tre   correct    format    needed
-;                          to setup    the  VOP  address    registers.     ‘he  following     tabie    codes
-;                          are use   to   itndentify  which   table    address    is being    setup:
+;   Function:              INIT TABLE initializes the addresses of the VRAM tabies.
+;                          The passed address is converted to the correct format needed
+;                          to setup the VDP address registers. The following tabie codes
+;                          are use to indentify which table address is being setup:
 ;
-;                            O  - SPRITE    ATTRIBUTE    TABLE    (SAT)
-;                            1  - SPRITE    GENERATOR    TABLE    (SGT)
-;                            2  - PATTERN    NAME   TABLE         (PNT)
-;                            3  - PATTERN    GENERATOR    TABLE   (PGT)
-;                            4  - PATTERN    COLOR   TABEL        (PCT)
+;                            O  - SPRITE ATTRIBUTE TABLE    (SAT)
+;                            1  - SPRITE GENERATOR TABLE    (SGT)
+;                            2  - PATTERN NAME TABLE        (PNT)
+;                            3  - PATTERN GENERATOR TABLE   (PGT)
+;                            4  - PATTERN COLOR TABEL       (PCT)
 ;
-;   Entry:                A  -  table   code   (see  above)
-;                         HL  -  table   address
+;   Entry:                A   -  table code (see above)
+;                         HL  -  table address
 ;
 ;   Exit:                 None.
 ;
@@ -1588,76 +1588,76 @@ BASEFACTORS:
                      DEFB  3                              ;register 3, PCT base address
 
 ;
-;   Name:                PUT _VRAM
+;   Name:                PUT_VRAM
 ;
-;   Function:            Gets  a block   of  data   from   a  user    buffer   and  puts    itt into  VRAM.
-;                       The  following    table   codes   are   used    to identify     which   VRAM  table
-;                         isbeing   referenced:
+;   Function:            Gets a block of data from a user buffer and puts it into VRAM.
+;                        The following table codes are used to identify which VRAM table
+;                        is being referenced:
 ;
-;                          O  - SPRITE   ATTRIBUTE     TABLE      (SAT)
-;                           1 - SPRITE   GENERATOR     TABLE      (SGT)
-;                          2  - PATTERN    NAME   TABLE          (PNT)
-;                          3  - PATTERN    GENERATOR    TABLE    (PGT)
-;                          4  - PATTERN    COLOR   TABLE         (PCT)
+;                          O  - SPRITE ATTRIBUTE TABLE      (SAT)
+;                          1  - SPRITE GENERATOR TABLE      (SGT)
+;                          2  - PATTERN NAME TABLE          (PNT)
+;                          3  - PATTERN GENERATOR TABLE     (PGT)
+;                          4  - PATTERN COLOR TABLE         (PCT)
 ;
-;   Entry:               A -  table  code   (see   above)
-;                        DE -  starting    index   into   the   table
-;                        Hi -  address   of  user   buffer
-;                        IY -  block   size  (or   byte   count)
+;   Entry:               A  -  table code (see above)
+;                        DE -  starting index into the table
+;                        Hi -  address of user buffer
+;                        IY -  block size (or byte count)
 ;
 ;   Exit:                None.
 ;
-;   Registers    used:   AF, DE,  HL,   IY
+;   Registers    used:   AF, DE, HL, IY
 ;
-;   Routines    used:    SETCOUNT
+;   Routines    used:    SET_COUNT
 ;
 ;   Size:                ROM -  O bytes
 ;                        RAM -  O bytes
 ;
-;   Comments:            This  version   of  PUT  _VRAM   is  provided    for   stand    alone  operation.
+;   Comments:            This version of PUT_VRAM is provided for stand alone operation.
 ;
-;   Comparision:         left  out  pascal   entry   point
-;                        took  out  the  mux   sprites    capablity
-;                        code  compacted
-;                        edited  for  documentation
+;   Comparision:         left out pascal entry point
+;                        took out the mux sprites capablity
+;                        code compacted
+;                        edited for documentation
 ;
-
+__PUT_VRAM:                                               
                      CALL  SET COUNT                      ;setup    the  actual    byte   count   and  the  absolute VRAM  address
-*                    CALL  WRITE  VRAM                    ;VRAM    data  =  user   buffer
-+                    RET                                  
+;*                   CALL     WRITE  VRAM                      ;VRAM    data  =  user   buffer
+;+                   RET
                      JP    WRITE  VRAM                    
 
 
 
-;  Name::            GET_VRAM
+;   Name:             GET_VRAM
 ;
-;   Function:         Gets a block of data  from VRAM and  stores it  intoa user buffer.
-;                     The following table  codes are used  to  itdentifwhich VRAM table
+;   Function:         Gets a block of data from VRAM and stores it into a user buffer.
+;                     The following table codes are used to identify which vRAM table
 ;                     is being referenced:
 ;
-;                       O - SPRITE ATTRIBUTE  TABLE  (SAT).
-;                       1 - SPRITE GENERATOR  TABLE  (SGT)
+;                       O - SPRITE ATTRIBUTE TABLE   (SAT).
+;                       1 - SPRITE GENERATOR TABLE   (SGT)
 ;                       2 - PATTERN NAME TABLE       (PNT)
-;                       3 - PATTERN GENERATOR  TABLE (PGT)
-;                       4 - PATTERN COLOR  TABEL     (PCT)
+;                       3 - PATTERN GENERATOR TABLE  (PGT)
+;                       4 - PATTERN COLOR TABEL      (PCT)
 ;
-;   Entry:            A - table code (see  above)
-;                     DE - starting index  into the table
-;                     HL - address of user  buffer
-;                     IY - block size (or byte  count)
+;   Entry:            A - table code (see above)
+;                     DE - starting index into the table
+;                     HL - address of user buffer
+;                     IY - block size (or byte count)
 ;
 ;   Exit:             None.
 ;
 ;   Registers  used:  AF, DE, HL, IY
 ;
-;   Routines  used:   SETCOUNT
+;   Routines  used:   SET_COUNT
 ;
 ;   Size:             ROM - O bytes
 ;                     RAM - O bytes
 ;
-;   Comments:         This version of GET VRAM  is provided  for stand alone operation.
+;   Comments:         This version of GET_VRAM is provided for stand alone operation.
 ;
-;   Comparision:      left out pascal entry  point
+;   Comparision:      left out pascal entry point
 ;                     code compacted
 ;                     edited for documentation
 
@@ -1746,16 +1746,16 @@ ADD_TOBASE:
 
 ;*******************      CALC  OFFSET    *****************************************************************
 ;
-;DESCRIPTION:         THIS  ROUTINE    CALCULATES     THE   PROPER    OFFSET     INTO  THE  NAME    TABLE
-;                      FOR  THE  PATTERN     POSITION    GIVEN   BY  X PAT   POS,    Y_PAT   POS.     THE
-;                      FORMULA   USED   IS:   OFFSET   =  32*Y  PAT  POS    +   XPAT   POS
+;DESCRIPTION:         THIS ROUTINE CALCULATES THE PROPER OFFSET INTO THE NAME TABLE
+;                     FOR THE PATTERN POSITION GIVEN BY X PAT_POS, Y_PAT_POS. THE
+;                     FORMULA USED IS:   OFFSET =  32*Y_PAT_POS + XPAT_POS
 ;
-;INPUT:               D     _PAT_POS
-;                      E     _PaT_POS
+;INPUT:               D  =   X_PAT_POS
+;                     E  =   Y_PaT_POS
 ;
-;OUTPUT  -            DE    OFFSET
+;OUTPUT  -            DE =   OFFSET
 ;
-;RHSHSSEHASESHES  HEHEHE  ESAS       EHAH  EASE     EHH   EHH                                RE  KEERE EEE
+;**********************************************************************************************************
 ;
 __CALC_OFFSET:                                            
                      PUSH  HL                             ;save   HL
@@ -1788,13 +1788,13 @@ ENO_IF_12:           endif
                      RET                                  
 
 ; ********************    PX TO.PTRN.  POS  ***************************************
-;DESCRIPTION:        DIVIDES   REG DE BY  8B, IF SIGNED   RESULT   >  127  THEN   E  >=  MAX  SIGNED
-;                   POSITIVE   NUMBER.  IF RESULT   <  -128,  THEN  E      MIN   NEGATIVE    NUM
+;DESCRIPTION:       DIVIDES REG DE BY 8, IF SIGNED RESULT > 127 THEN E :=  MAX SIGNED
+;                   POSITIVE NUMBER.  IF RESULT < -128,  THEN  E := MIN NEGATIVE NUM
 ;INPUT:              DE =  16  BIT SIGNED  NUMBER
-;OUTPUT:             DE/8  <  -128     —E =  -128
+;OUTPUT:             DE/8 < -128       E =  -128
 ;        -128   <= DE/8   <=+127      E  = DE/8
 ;        +127   <  DE/8               E  = +127
-;eeeeeee SESH  EHHEHEH  EHH   EHEHEERE  EEEEEE HEHEHE REESE   EAREEHE HEHEHE  HERES  EEE EES
+; *********************************************************************************
 ;
 __PX_TO_PTRN_POS:                                         
 
@@ -1829,50 +1829,50 @@ NEGTV:               LD    H,OOH                          ;SET   HL TO  128
 DEL                  EQU   7FH                            ;ASCII code for   it
 ;ASCII_GEN          EQU      LOC_INALPHA      ist byte of  generator  for  NUL
 ;
-; _ LOAD  ASCII
+; _LOAD_ASCII
 ;
-;     Loads  the  ASCII  character generators into VRAM at  the
-;     current  pattern   generator table (NOTE - INITTABLE   must
-;    have   been  called  prior to this).  Only the characters
-;     from  the space   to the DEL (20h to 7Fh) are loaded.
+;     Loads the ASCII character generators into VRAM at the
+;     current pattern generator table (NOTE - INIT_TABLE must
+;     have been called prior to this).  Only the characters
+;     from the space to the DEL (20h to 7Fh) are loaded.
 ;
 ;Input   Parameters:
 ;   NONE
 ;
 ;Returns:
-;   A,   8C, HL,  DE are  destroyed
+;   A, 8C, HL, DE are destroyed
 ;
-;  Falls   into _PUT_ASCII
+;  Falls into _PUT_ASCII
 ;
                                                           ;
-                                                          ;LO       HL,([PATTRNGENTBL];get base of  current  generator    table
+                                                          ;LO       HL,[PATTRNGENTBL];get base of  current  generator    table
                      LD    DE,[PATTRNGENT8L]              ;get base of  current  generator    table
-                                                          ;LD       DE,OOH+8        ;Offset into  it where  SPACE  will   be
+                                                          ;LD       DE,00H+8        ;Offset into  it where  SPACE  will   be
                                                           ;ADD      HL.DE
-                     EX    DE,HL                          ;leave VRAM address   in DE
-                     LD    HL,OOH                         ;want to start  with  the nu)!
-                     LD    BC,[DEL-OOH+1]                 ;load the entire  ASCII  set (0. .7F)
+                                                          ;EX       DE.HL           ;leave VRAM address   in DE
+                     LD    HL,00H                         ;want to start  with  the null
+                     LD    BC,[DEL-00H+1]                 ;load the entire  ASCII  set (0. .7F)
 ;
 ; fall   thru to  PUT_ASCII
 ;:
 
 ;
-;  — PUT_ASCII
+;  __PUT_ASCII
 ;
-;       Copys ea specified  number of ASCII    character generators    into VRAM.
-;       Swaps  to ROM that  contains the  generators   then  swaps  back,  keeps
-;       track of  callers  stack and uses  a   tocal stack  that  is known  to
-;       be in RAM  when the  ROM is swapped    in.
+;       Copys a specified number of ASCII character generators into VRAM.
+;       Swaps to ROM that contains the generators then swaps back, keeps
+;       track of callers stack and uses a local stack that is known to
+;       be in RAM when the ROM is swapped in.
 ;
 ;Input  Parameters:
-;  HL  - Character  to tst  load (generally    in rangeO.  .FFH)
-;  BC  - Number  of characters  to load  (Not   the number  of bytes)
-;  DE  - Address  in VRAM  to load the  ist  generator
+;  HL  - Character to 1st  load (generally in range O..FFH)
+;  BC  - Number of characters to load  (Not the number of bytes)
+;  DE  - Address in VRAM  to load the 1st generator
 ;
 ;  A,  BC, HL,  DE, IX  are  destroyed
 ;
-;  Calis  WRITE _VRAM
-;         SWITCH  _MEM
+;  Calis  WRITE_VRAM
+;         SWITCH_MEM
 ;
 
                      ADD   HL,HL                          ;multiply  char  to  start  loading  by  8
@@ -1917,38 +1917,38 @@ DEL                  EQU   7FH                            ;ASCII code for   it
                      RET   >                              ;and back to  caller
 
 ;
-;    Switch_mem:  memory bank  switching  routine
+;    Switch_mem:  memory bank switching routine
 ;
 ;    Inputs:
-;                 A = Appropriate   tnput from  SWITCH TABLE
+;                 A = Appropriate input from  SWITCH TABLE
 ;
 ;                  Example:
 ;     Switch Table  Offset    Memory  configuration
-;    “eweaeeweweeeewveaeewreeweereerwrtenreweenwweenwrnawxenenWuewewweeaewvnweeeeenwweexe
+;    *************************************************************************
 ;
-;              -          Boot  ROM and  Alpha  Roms
-;              -          Intrinsic   RAM (OOOOH  thru  7FFFH)
-;                         Expansion   memory (OOOOH   thru 7FFFH)
-;              -          OS_7  and  Intrinsic  RAM (2000H   thru 7FFFH)
-
-
-
-
-
-
-;   *¢+¢Note: The values in  the table  are subject   to change  in future
+;             0 -          Boot ROM and Alpha Roms
+;             1 -          Intrinsic RAM (OOOOH  thru 7FFFH)
+;             2 -          Expansion memory (OOOOH thru 7FFFH)
+;             3 -          OS_7 and Intrinsic RAM (2000H thru 7FFFH)
+;             4
+;             .
+;             D
+;             E
+;             F
+;
+;   *** Note: The values in the table are subject to change in future
 ;             releases of ADAM  hardware.
 ;
 ;   For an example  of the use  of SWITCH MEM   see PORT COLLECTION    below.
 ;
 ;
 ;    Outputs:
-;                  CUR_BANK,  a defined  memory  location  will  contain
-;                  the updated  input  parameter  for  applications  and
-;                  EOS routines  which  need to  determine  which
-;                  memory space  is currently   active.
+;                  CUR_BANK, a defined memory location will contain
+;                  the updated input parameter for applications and
+;                  EOS routines which need to determine  which
+;                  memory space is currently active.
 
-SWITCH               MEM                                  
+__SWITCH_MEM                                              
                      LD    B A                            ;SAVE THE  PORT DATA   TO WRITE
                      LD    A [MEMSWITCH  PORT]            ;GET THE  PORT NUMBER
                      LD    CCA                            
@@ -1958,11 +1958,11 @@ SWITCH               MEM
                      RET                                  
 ;
 ;
-;    Port collection must  be  calied  during initialization
-;    It switches to OS7 ROM  grabs  the  ports and switches back
+;    Port collection must be calied during initialization
+;    It switches to OS7 ROM grabs the ports and switches back
 ;
 
-PORT                 COLLECTION:                                
+PORT_COLLECTION:                                          
                      LD    A,[CUR_BANK]                   ;GET THE CURRENT BANK
                      PUSH  AF                             
 ;
@@ -2001,16 +2001,16 @@ PORT                 COLLECTION:
                      RET                                  
 
 ;
-;  Name:              WRSPR_ATTRIBUTE
+;  Name:              WR_SPR_ATTRIBUTE
 ;
-;  Function:          Transfers  the  loca!  copy of  the sprit¢ attribute     table
-;                      to VRAM.   WR_SPR_ATTRIBUTE    will also reorder    the
-;                      sprite  table  to reduce  Sth  sprite priority  problems.
+;  Function:          Transfers the local copy of the sprite attribute table
+;                     to VRAM.   WR_SPR_ATTRIBUTE will also reorder the
+;                     sprite table to reduce 5th sprite priority problems.
 ;
-;  Entry:             DE - address  of  Loca:  Sprite  Table
-;                     HL - address  of  Priority  table
-;                      & - mumber  cf  sprites  to he  transfered (length    of  Loca!   Sprite
-;                            table divide    by 4
+;  Entry:             DE - address of Local Sprite Table
+;                     HL - address of Priority table
+;                      A - number of sprites to be transfered (length of Local Sprite
+;                            table divided by 4
 ;  Exit:              None.
 ;
 ;  Registers   usec:  AF, BC,  DE, Hi.
@@ -2038,7 +2038,7 @@ PORT                 COLLECTION:
 ;                     code compacted
 ;                     edited  for documentation
 ;
-WR                   _SPR_ATTRIBUTE                                
+_WR_SPR_ATTRIBUTE                                         
 ;                                                      Initialize  VOP  address    pointer
                      PUSH  AF                             
                      PUSH  HL                             
@@ -2154,11 +2154,11 @@ DEC_KBD_TBL
                      DEFB  8                              ; ‘8’
                      DEFB  KBDO_NULL                      ; NULL ENTRY
 
-KBD_NULL             EQU   OFH                            
-KBD_MASK             EQU   OFH                            ;MASK  FOR  INPUT DATA BYTE
+KBD_NULL             EQU   0FH                            
+KBD_MASK             EQU   0FH                            ;MASK  FOR  INPUT DATA BYTE
 FIREMASK             EQU   40H                            
 ARM_MASK             EQU   40H                            
-JOY_MASK             EQU   OFH                            
+JOY_MASK             EQU   0FH                            
 
 
 
@@ -2263,48 +2263,48 @@ LEAVE_THEM_OFF:
                      RET                                  
 
 ;
+;  __POLLER
 ;
+;   Used to fill a table of values for the 2 controllers
+;   Does some debouncing if called twice in succession
 ;
-;   Used   to fill  a  table of  values   for  the 2 controllers
-;   Does  some  debouncing    if called   twice   insuccession
+;   NOTE   - Does not return at bottom of code, return is in middie
+;            Interupts will be off for a while when call to DECODE is performed.
 ;
-;   NOTE   - Does  not  return  at bottom   of  code, return    ts  in middie
-;            Interupts   will  be off  for  a  while when  cal!   to  DECODE   is  performec.
-;
-;   Callers   - This  has  different   input   parameters  than   OS-7  and
-;               the  controller   map  ts  ordered  differently.
+;   Callers   - This has different input parameters than OS-7 and
+;               the controller map is ordered differently.
 ;
 ;
 ;Stack Usage:
-;  will  use  4 words   (2 pushes,  2  call)
+;  will use 4 words   (2 pushes,  2  call)
 ;
 ;Calis:
-;  _DECODER
+;  __DECODER
 ;  DEBOUNCE
-;  READ_N_DEBOUNCE      (a routine   that  is  nested itn _POLLER)
+;  READ_N_DEBOUNCE      (a routine that is nested in _POLLER)
 ;
 ;Input  Parameters:
-;  IX  - pointer  to  ist  byte  of users   controller   map  (10  bytes)
-;   A  - controller   enabled   and spinner    enable
-;          bit  O  - set  if want  controller    O enabled
-;          bit  1  - set  if want  controller    t enabled
-;          bit  7  - set  if want  spinner   enabled  for  controllers     which  are  enabled
+;  IX  - pointer to 1st byte of users controller map  (10  bytes)
+;   A  - controller enabled and spinner enable
+;          bit  O  - set if want controller O enabled
+;          bit  1  - set if want controller 1 enabled
+;          bit  7  - set if want spinner enabled for controllers which are  enabled
 ;
 ;Returns:
 ;
 ;  Data  in users   controller   map  is  like  this off  of  entry   IX value
 ;             IX+O   - joystick   O
 ;             IX+1   - fire  O
-;              IX+2   - arm  O
-;             IX+3     keyboard   O
-;              IX+4   - spinner   count  O
-;              IX+5   - joystick   1
-;              IX+6   - fire  1   
-;              IX+7   - arm  1
-;              IX+8   - keyboard   1
-;              IX+9   - spinner   count  1
+;             IX+2   - arm  O
+;             IX+3   - keyboard   O
+;             IX+4   - spinner   count  O
+;             IX+5   - joystick   1
+;             IX+6   - fire  1
+;             IX+7   - arm  1
+;             IX+8   - keyboard  1
+;             IX+9   - spinner count  1
 ;
-;   IX -  points  to  1 byte  past  users   data  table of  highest   enabled    controller
+;   IX -  points to 1 byte past users data table of highest enabled controller
 ;
 ;
 ;   all  but  IY - destroyed
@@ -2410,18 +2410,18 @@ NOT_SAME
                      RET                                  
 
 ;
-;UpdateSpinner   - Controller   spin   switch interrupt  service routine
+;Update_Spinner   - Controller spin switch interrupt  service routine
 ;
-;  This routine  processes   the  spinner  switch interrupt  and updates
-;    the data needed   by  both DECODER   and POLLER
+;  This routine  processes the spinner switch interrupt and updates
+;    the data needed by both DECODER and POLLER
 ;
-; Ram area used:  Updates   SPIN _SWO_CNT  and SPIN SW1 CNT
+; Ram area used:  Updates SPIN_SW0_CNT and SPIN_SW1_CNT
 ;
-; The spinner switch   maskable   interrupt  ts RST  38H
+; The spinner switch maskable interrupt is RST 38H
 ;
 ; Destroys AF, BC,  HL
 ;
-DIR_MASK             EQU   00 1000008                     ;bit 5 tells us  the direction
+DIR_MASK             EQU   00100000B                      ;bit 5 tells us  the direction
 INTBIT               EQU   4                              ;bit that tells which   spinner   interrupted
 
 __UPDATE_SPINNER                                          
@@ -2477,9 +2477,9 @@ OFF                  EQU   0FH                            ;Off,  no   sound
 
 ;          Special    byte   O  codes
 
-INACTIVE             EQU   OFFH                           
+INACTIVE             EQU   0FFH                           
 ;@@e@  SEFFECT               EQU               62
-ENDSDATA             EQU   O                              
+ENDSDATA             EQU   0                              
 
 ;          Offsets    within    an   SxDATA    song  data    area
 
@@ -2858,26 +2858,26 @@ AREA_SONG_IS
 
 
 
+;****************************
+;*       INIT_SOUND         *
+;****************************
 
-;:*      INIT_SOUND         ‘
+;See Users’ Manuai for description;   includes ENTRY_POINT_ALL_OFF
+;addr LST_OF_SND_ADDRS passed in HL
+;n = # of song data areas to init, passed in B
 
-
-;See Users’ Manuai for description;   includes ENTRY POINT ALLOFF
-;addr iST_OFSND_ADDRS  passed   in HL
-;n = # of song data areas to   init, passed in B
-
-;       *¢* Sound chip register   code EQUATES **-*
+;       *** Sound chip register   code EQUATES ***
 
 ;       Tone generator frequency   and attenuation formatted register   codes
 
-SRIFRQ               EQU   100000008        -BIT7 = 1,BIT6-4 = TONE GEN  1 FREQ  CODE 
-SRIATN               EQU   100100008                      ;BIT7 = 1, BIT6-4 = TONE GEN  1 ATTN  CODE
-SR2FROQ              EQU   101000008                      ;BIT7 = 1, BIT6-4 = TONE GEN 2  FREQ  CODE
-SR2ATN               EQU   101100008        -BIT7 = 1,BIT6-4 = TONE GEN 2  ATTN  CODE 
-SR3FRQ               EQU   110000008        -BIT7 = 1,BITG-4 = TONE GEN 3  FREQ  CODE 
-SR3AIN               EQU   110100008                      ;BIT7 = 1, BITG-4 = TONE GEN  1 ATTN  CODE
+SRIFRQ               EQU   10000000B                      ;BIT7 = 1, BIT6-4 = TONE GEN 1 FREQ  CODE
+SRIATN               EQU   10010000B                      ;BIT7 = 1, BIT6-4 = TONE GEN 1 ATTN  CODE
+SR2FROQ              EQU   10100000B                      ;BIT7 = 1, BIT6-4 = TONE GEN 2 FREQ  CODE
+SR2ATN               EQU   10110000B                      ;BIT7 = 1, BIT6-4 = TONE GEN 2 ATTN  CODE
+SR3FRQ               EQU   11000000B                      ;BIT7 = 1, BIT6-4 = TONE GEN 3 FREQ  CODE
+SR3AIN               EQU   11010000B                      ;BIT7 = 1, BIT6-4 = TONE GEN 1 ATTN  CODE
 
-;       Noise generator control!  and attenuation formatted register   codes
+;       Noise generator control and attenuation formatted register codes
                      .                                    
 SRNCTL               EQU   111000008                      ;BIT7 = 1, BIT6-4 = NOISE GEN  CONTROL  CODE
 SRNATN               EQU   111100008                      ;BIT7 = 1, BIT6-4 = NOISE GEN  ATTN  CODE
@@ -3160,18 +3160,18 @@ DONESNOMAN
 
 
 
-;SESS SSHHSESHER SHESHEHEEEE
-;¢      LEAVE_EFFECT
-;SPSS  SSSSHHHESSESHEHEHEEEEE
+;******************************
+;*      LEAVE_EFFECT          *
+;******************************
 
 ;LEAVEEFFECT,  called by a special sound effect routine when it’s finished,
 ;restores the SONGNO of the song to which the effect note belongs to B5 - BO  of
-;sbyte 0 in the effect’s data area, and loads bytes 1 and 2 with the address  of
-;-the next note inthe  song.  The address of the 1 byte SONGNO (saved by the
-;effect when first called) is passed in DE.  The 2 byte address of the next  note
-;-in the song. also saved by the effect, is passed in HL.  IX is assumed to  be
+;byte 0 in the effect’s data area, and loads bytes 1 and 2 with the address  of
+;the next note in the  song.  The address of the 1 byte SONGNO (saved by the
+;effect when first called) is passed in DE.  The 2 byte address of the next note
+;in the song, also saved by the effect, is passed in HL.  IX is assumed to  be
 ;pointing to byte O of the data area to which the song number is to be restored.
-;Bits 7 and 6 of the saved SONGNO are ignored, and therefore may be used by  the
+;Bits 7 and 6 of the saved SONGNO are ignored, and therefore may be used by the
 ;effect to store flag information during the course of the note.
 
 __EFFECT_OVER                                             
@@ -3216,7 +3216,7 @@ PROCESS              DATA_AREA
 L10                                                       
                      CALL  ATN_SWEEP                      ;process     atn  sweep    data,    if  any
                      CALL  FREQ  SWEEP                    ;proc   frq   sweep   data,     if any,    &  note  dura    timer  s
-SEE                  JR    NZ,L12                         ;'f  PSW   {ts zero    note   is  over
+;         JR        NZ,L12                ;'f  PSW   {ts zero    note   is  over
                      RET   NZ                             
 EFXOVER                                                   
                      LD    A,[IX+O]                       ;A  := CH#                 this   note
@@ -3502,7 +3502,7 @@ OUT_TO_SOUND_PORT:
                                                           ;GLB         _  QUERY    FILE,       SET    FILE,      MAKE    FILE
                                                           ;GLB         __FILE    QUERY
                                                           ;EXT          FCB  _HEAD   _ADDR,FCB_       DATA_ADOR
-                                                          ;EXT          SCAN_FOR    FILE
+                                                          ;EXT          SCAN_FOR_FILE
                                                           ;EXT         BLOCKS    REQ,USER        BUF   ,USER    NAME
                                                           ;EXT         BUF  START    ,BUF    END
                                                           ;EXT         STRCMP    ,BASECMP
@@ -3513,21 +3513,21 @@ OUT_TO_SOUND_PORT:
                                                           ;EXT         DIR_BLOCK_NO,FOUND             AVAIL    ENTRY
                                                           ;EXT         FILENAME     CMPS
 
-;3m        nm  ee        enenn       we  me  mn      ee me re  mem ewe  nee  ree       nee     ee eneeen
+;-------------------------------------------------------------------------------------------------
 ;
-;    QUERY    FILE     --  Read     the   file’s      directory        entry.     (USES     STRCMP     FOR   FILE    NAME     COMPARISIONS)
-;    FILE    QUERY     --   SAME   AS   ABOVE      BUT    SETS    UP   SCAN  _FOR_FILE       FOR    BASE    COMPARES        (  USES      BASECMP    )
+;  __QUERY_FILE -- Read the file’s directory entry.  (USES STRCMP FOR FILE NAME COMPARISIONS)
+;  __FILE_QUERY -- SAME AS ABOVE BUT SETS UP SCAN_FOR_FILE FOR BASE COMPARES ( USES BASECMP )
 ;
-;  CALLING     PARAMETERS:        Device     number       in  A
-;                                 address     of     name    string      in  DE
-;                                 address       of   buffer      in  HL
+;  CALLING PARAMETERS:        Device number in A
+;                             address of name string in DE
+;                             address of buffer in HL
 ;
-;  EXIT    PARAMETERS:       if   no  errors       --   Z  =   1;  A   =  0;  BCDE     =  file’s     start     block:
-;                                  Girectory         entry     in  caller’s      buffer
-;                            if   errors      --   Z  =   0;  A   =  error    code;      DE  =   junk;
-;                                  caller’s        buffer     undef    ined
+;  EXIT PARAMETERS:       if no errors -- Z = 1;  A = 0; BCDE = file’s start block:
+;                                  directory entry in caller’s buffer
+;                         if errors    -- Z = 0;  A = error code;  DE =  junk;
+;                                  caller’s buffer undefined
 ;
-;seer  ccc  ccc  rr rrr rte         et        rt      er rr          er    re          ee er re     eee
+;-------------------------------------------------------------------------------------------------
 
 __FILE_QUERY:                                             
                      SCF                                  ;  THIS    ENTRY    DOES    NOTHING      MORE     THAN    SET   CARRY     FLAG
@@ -3580,22 +3580,22 @@ Q_ERROR:
                      RET                                  
 
 
-;5 r rr                  rrr       rts     tern          ttre              ~atte
+;-----------------------------------------------------------------
 ;
-;   SET FILE    --   Re-write    the  file’s   directory    entry.
+;  _SET_FILE    --   Re-write the file’s directory entry.
 ;
-; CALLING  PARAMETERS:      Device    number    in A
-;                           address    of  name   string   in DE
-;                           address    of  buffer    in HL
+; CALLING  PARAMETERS:      Device number in A
+;                           address of name string in DE
+;                           address of buffer in HL
 ;
-; EXIT  PARAMETERS:      tf no  errors    --  2  = 1; A  =  0;
-;                             directory    entry   updated
-;                        if errors    --  2  = 0;  A =  error   code;
-;                             directory    entry   unchanged
+; EXIT  PARAMETERS:      tf no  errors    --  Z = 1; A = 0;
+;                             directory entry updated
+;                        if errors        --  Z = 0; A =  error code;
+;                             directory entry unchanged
 ;
-;5mm                       rr   rn       re  mere   ees crest e reece  sow mere teen
+;-----------------------------------------------------------------
 
-SET                  FILE                                 
+_SET_FILE                                                 
                      PUSH  BC                             ;SAVE  REG’S
                      PUSH  DE                             
                      PUSH  HL                             
@@ -3637,26 +3637,26 @@ SERROR
                      RET                                  
 
 
-;Br           rr          rt        rr      cer     rere  rrr       -----------
+;---------------------------------------------------------------------------------
 ;
-;  _MAKE  FILE:   creates  a  file  in  the directory.
+;  _MAKE_FILE: creates a file in the directory.
 ;
-;  ENTRY  PARAMETERS:   called  with  device   ID  in A:  address   of name
-;                  string   in HL;  file  size   (in bytes)   in  BC DE.
+;  ENTRYPARAMETERS:   called with device ID in A:  address of name
+;                  string in HL;  file size (in bytes) in BC DE.
 ;
-;   NOTE:    IF FILE SIZE   = O (BC  DE),  THEN  THE  REMAINDER    OF THE  TAPE IS
-;            ALLOCATED  TO THE  FILE
+;   NOTE:    IF FILE SIZE = O (BC DE), THEN THE REMAINDER OF THE TAPE IS
+;            ALLOCATED TO THE FILE
 ;
-;  EXIT  PARAMETERS:  CONDITION   FLAGS
+;  EXIT PARAMETERS:  CONDITION   FLAGS
 ;                       Z    -   NO  ERRORS
-;                     NZ     -   ERRORS
-;                                 A  = ERROR   CODE
+;                      NZ    -   ERRORS
+;                                 A  = ERROR CODE
 ;
-;        ALL  REGISTERS  ARE  PRESERVED   EXCEPT  AF
-;                                       
-;5mm   rrr             rr     rrr    rr   en  rr   rn nn   rere en rereeee  ----
+;        ALL REGISTERS ARE PRESERVED EXCEPT AF
+;
+;---------------------------------------------------------------------------------
 
-FOUND_ENTRY          EQU   O                              ; BIT   INOICATING   DELETED   FILE FOUND  FOR  OVERLAYING
+FOUND_ENTRY          EQU   0                              ; BIT   INOICATING   DELETED   FILE FOUND  FOR  OVERLAYING
 
 _MAKE_FILE                                                
                      PUSH  IY                             ;SAVE  REGISTERS
@@ -4070,3 +4070,311 @@ NOT_END:
 ;*
 ;*  STILL  TRYING    TO CALC  THE  NEW   START   ADOR
 ;=                    .
+                     LD    HL,[NEW_HOLE SIZE]             
+                     LD    [IY+DIR_MAX_LENGTH],L          ;  BLOCKS   LEFT   ON TAPE
+                     LD    [IY+DIR_MAX_LENGTH+1],H        
+
+                     LD    A,[NEW_HOLE_START]             
+                     LD    [IY+DIR_START_BLOCK],A         
+                     LD    A,[NEW_HOLE_START+1]           
+                     LD    [IY+DIR_START_BLOCK+1],A       
+                     LD    A,[NEW_HOLE_START+2]           
+                     LD    [IY+DIR_START_BLOCK+2],A       
+                     LD    A,[NEW_HOLE_START+3]           
+                     LD    [IY+DIR_START_BLOCK+3],A       
+
+                     LD    [IY+DIR_ATTR],ATTR_HOLE        ; SET  HOLE   UP
+
+                     PUSH  IY                             
+                     POP   DE                             
+
+                     LD    HL,HOLE_FILE_NAME              
+                     LD    BC,12                          
+                     LDIR                                 
+
+TIME_TO_WRITE:                                            
+                     LD    A,[IX+FCB  DEVICE]             ;GET PARAMETERS  FROM  FCB
+                     LD    HI,[BUF START]                 
+                     LD    E,[IX+FCB_BLOCK   ]            
+                     LD    0,[1X+FCB_BLOCK+   1]          
+                     LD    C,[1X+FCB_BLOCK+2]             
+                     LD    8B[IX+FCB_BLOCK+3]             
+                     CALL  WRITE  _BLOCK                  ;WRITE  THE BLOCK OUT
+
+                     JR    NZ,MAKE ERROR                  ; IT’S A BOO BOO! !
+                     XOR   A                              ;SHOW NO  ERROR
+
+LETS_GET_OuT:                                             
+MAKE_ERROR:                                               
+                                                          ;RESTORE  THE REGISTERS
+                     OR    A                                                                                                             ‘ 
+                     POP   BC                             
+                     POP   DE                             
+                     POP   HL                             
+                     POP   IX                             
+                     POP   RY                             
+                     RET                                  
+
+TOO_BIG                                                   
+                     LD    A,TOO_BIG_ERR                  ;SHOW AN  ERROR
+                     JR    MAKE_ERROR                     
+
+
+FILE_EXISTS                                               
+                     LD    A,FILE_ EXISTS_ERR             
+                     JR    MAKE_ERROR                     
+
+FULL_DIR_EXIT:                                            
+                     LD    A,FULL_DIR_ERR                 
+                     JR    MAKE_ERROR                     
+
+TAPE_FULL                                                 
+                     LD    A,FULL_TAPE_ERR                
+                     JR    MAKE_ERROR                     
+;«+
+;¢
+;*    SUBROUTINE   NAME:  GET  FILE   NAME  LENGTH
+;*
+;«      ENTRY:   HL- POINTS   TO  TEXT  STRING
+;*      EXIT:    Z=1=FOUND   AND  PROPER   SIZE  (1-12)
+;*                 BC=BYTE   COUNT
+;                  A=TRASHED
+;*
+;*               Z=O=ERROR
+;*                 BC=TRASH
+;»                 A=FILE  NAME  _TOO LONG
+;* DLS(8/28/83)
+;*
+GET_FILE_NM_LEN:                                          
+                     PUSH  HL                             ;SAVE  THE POINTER  TO  FILE NAME
+                     LD    B,12                           ;SCAN  UP TO 12 BYTE
+                     LD    C,1                            ;SET COUNT  TO 1
+SRCH_LOOP:                                                
+                     LD    A,[HL]                         ;GET FN(1)
+                     CP    03                         SETX 
+                     JR    2,GOT_IT                       
+;*
+                     INC   C                              
+                     INC   HL                             ;ADVANCE POINTER  TO FILE  NAME  STRING
+                     DJNZ  SRCH_LOOP                      
+;
+ERR_GFN                                                   
+                     LD    A,FILE_NM_ERR                  
+                     OR    A                              ;SHOW ERROR
+                     POP   HL                             
+                     RET                                  
+;*
+GOT_IT                                                    
+                     LD    A,C                            
+                     CP    1                              ;ETX ALONE  IS NOT VALID
+                     JR    2,ERR_GFN                      
+                     LD    8,0                            
+                     XOR   A                              ;SHOW OK
+                     POP   HL                             
+                     RET                                  
+
+
+
+
+LOAD_NEW_ENTRY_INFO:                                      
+                     PUSH  IY                             ;GET   NAME   ADORESS     INTO    DE
+                     POP   DE                             
+
+                     LD    HL,[USER_    NAME]             ;GET   USER’S    STRING    ADDRESS
+;«
+                     CALL                                 ; DLS(8/28/83)
+                     JP    NZ,MAKE  ERR   1               
+;*
+                     LDIR                                 ;COPY   USER’S    NAME    INTO   DIR   ENTRY
+
+                     LD    A,ATTR_USER                    ;SET   THE  DEFAULT     ATTRIBUTE
+                     LD    [1Y+OIR_ATTR],A                
+                     é                                    
+                     LD    BC,[BLOCKS   REQ]              ;GET   NEW   FILE’S    MAX   SIZE
+                     LD    [I¥+DIR_MAX_LENGTH],C          ;PUT   INTO    DIR
+                     LD    [1Y¥*DIR_MAX_LENGTH+1],8       
+
+
+                     LD    [1¥+DIR_USED_LENGTH],1         ;INIT   COUNT    OF   BLOCKS    USED
+                     LD    [1¥*DIR_USED_LENGTHT1],0       
+
+                     LD    [I¥+DIR_LAST_COUNT],O          ;INIT   BYTECOUNT      IN   LAST   BLOCK
+                     LD    [1 ¥*#DIR_LAST_COUNT+1],0      
+
+                     LD    A,[EOS  YEAR]           >INSERT    THE   DATE 
+                     LD    [IV+DIR_VEAR],A                
+                     LD    A,[EOS  MONTH]                 
+                     LD    [1¥*#DIR_  MONTH],A            
+                     LD    A,[EOS  DAY]                   
+                     LD    [1V¥+DIR_DAY],A                
+
+
+
+__MAKE_ERR_1:                                             
+                     RET                                  
+
+;
+;***********************************************************************************
+;***********************************************************************************
+;***********************************************************************************
+;
+
+
+                                                          ;GLB       _OPEN_FILE, _CLOSE_FILE, _RESET_FILE
+                                                          ;EXT       FCB_HEAD_ADDR,FCB_DATA_ADDR
+                                                          ;EXT       BUF START, _FMGR_DIR_ENT
+                                                          ;EXT       __QUERY_FILE,  MODE_CHECK,READ_BLOCK, WRITE_LOCK
+                                                          ;EXT       __SET_FILE
+                                                          ;EXT       FILE_NAME_ADDR
+
+;-----------------------------------------------------------------------------------------
+;
+;  _OPEN_FILE    --  Sets up an FCB for the caller to access a file.
+;
+;  CALLING  PARAMETERS: device number in A;   address of name string
+;                    in HL;  mode in B.
+;
+;  EXIT  PARAMETERS:     if no error   --  Z = 1;  A  =  file number                                                                                      '
+;                        if error      --  Z = 0;  A  =  error code;    B  =  junk
+;
+;-----------------------------------------------------------------------------------------
+
+;  NEXT_FCB   CHANGED   TO  O NEXT   _FCB   TO  PREVENT    CONFLICT      WITH
+;  IDENTICAL    LABEL  ELSEWHERE
+
+_OPEN_FILE                                                
+                     PUSH  IY                             ;SAVE    REGISTERS
+                     PUSH  HL                             
+                     PUSH  IX                             
+                     PUSH  DE                             
+
+                     PUSH  AF                             ;SAVE   DEVICE     NUMBER
+EA07                 CS    4282              PUSH      BC ;SAVE   MODE
+
+;  FIRST,  WE  HAVE  TO   LOCATE   A  FREE   FCB.
+EA08                 DD2AFDFO 4258              LO        IX,[FCB_HEAD_ADOR] ;GET  POINTER     TO   FIRST   FCB’S   HEAD
+                     LD    DE,FCB_LENGTH                  
+                     ADD   IX,DE                          ;  SKIP   OVER   IT   --  BELONGS     TO  SYSTEM
+
+                     LD    I¥,[FCB_DATA_ADDR]             ;:GET  POINTER     TO   FIRST   FCB’S   BODY
+                     LD    DE,1024                        
+                     ADD   IY,DE                          ;  SKIP   OVER   IT   TOO
+
+                     LD    BI                             ;SET   FCB   NUMBER
+O_NEXT_FCB                                                
+                     LD    A,[IX+FCB_   MODE]             ;GET   THE   MODE   BYTE    FROM   FCB
+                     OR    A                              ;CHECK    IT
+                     JR    Z,GOT_ONE                      ;BRANCH     IF  THIS   ONE   IS  FREE
+
+                     LD    DE,FCB_LENGTH                  ;ELSE     SKIP   OVER    IT
+                     ADD   1X,DE                          
+                     LD    DE,1024                        
+                     ADD   IY,DE                          
+
+                     INC   8                     -INC   THE   FCB  NUMBER 
+                     LD    A,B                            
+                     CP    NUM FCBS              SARE   THERE    MORE   FCBS   TO  CHECK? 
+                     JR    C,0 NEXT   FCB                 ;LOOP   UNTIL    WE’VE    SEEM   THEM   Ait
+NO_FCBS              :                                    
+                     POP   BC                    RESTORE      RP    § 
+                     POP   AF                             
+                     POP   DE                             
+                     POP   IX                             
+                     POP   HL                             
+                     POP   IY                             
+
+                     LD    A,NO_FCB_ERR                   ;SET  THE ERROR CODE
+                     OR    A                              ;SET  THE CONDITIONS
+EA3D                 C9    4268          RET              
+
+GOT_ON                                                    
+                     LD    [BUF_START],IY                 ;SAVE  THE FCB BUFFER’S  ADDRESS
+
+                     POP   AF                             ;GET THE  MODE
+                     LD    [IX+FCB_MODE],A                ;PUT  IT INTO FCB                                                                       '
+                     POP   AF                             ;GET THE  DEVICE
+                     LD    [IX+FCB_DEVICE],A              ;PUT IT INTO FCB
+
+                     PUSH  BC                             ;SAVE  THE FCB NUMBER
+
+                     PUSH  HL                             
+                     POP   DE                             ; ADDRESS  OF NAME STRING
+
+                     PUSH  IX                             ;POINT  TO FCB NAME (ASSUME  OFFSET  =  0)
+                     POP   HL                             
+                     LD    A,[IX+FCB_DEVICE]              ;GET  DEVICE NUMBER
+                     CALL  __QUERYFILE                    ;GET THE  FILE’S DIR  ENTRY
+                     JP    NZ,OP_ERR                      ;BRANCH  IF THERE WAS  AN ERROR
+                                                          ;#** SET  PARAMS ees
+                     CALL  MODECHECK                      ;SEE IF  MODE MATCHES  ATTRIBUTES
+                     JP    NZ,OP_ERR                      ;BRANCH  IF NOT
+
+                     LD    A,[IX+FCB_USED_ LENGTH]        ;CALC. & SET  LAST BLOCK
+                     ADD   A,[IX+FCB_FIRST BLOCK]         
+                     LD    [IX+FCB_LAST BLOCK],A          
+                     LD    A,[IX+FCB_FIRST  BLOCK+1]      
+                     ADC   A,[IX+FCB_USED LENGTH+T1]      
+                     LD    [IX+FCB_LAST BLOCK+1],A        
+                     LD    A,[IX+FCB_FIRST BLOCK+2]       
+                     ADC   A,O                            
+                     LD    [IX+FCB_LAST_BLOCK+2],A        
+                     LD    A,[IX+FCB_FIRST_BLOCK+3]       
+                     ADC   A,O                            
+                     LD    [IX+FCB_LAST BLOCK+3],A        
+
+                     LD    A,[IX+FCBLAST  BLOCK+TO]       
+                     SUB   1                              
+                     LD    [IX+FCB_LAST BLOCK+O],A        
+
+                     LD    A,[IX+FCB_LAST BLOCK+I]        
+                     SBC   A,O                            
+                     LD    [IX+FCB_LAST BLOCKTI],A        
+
+                     LD    A,[IX+FCLAST  BLOCK+T2]        
+                     SBC   A,O                            
+                     LB    [I1X+FCBLAST BLOCK+2],A        
+
+                     LD    A,[IX*FCB_LAST_BLOCK+3]        
+                     SAC   A,O                            
+                     LD    [IX+FCB_LAST  BLOCK+3],A       
+
+                     LD    DE,[BUF_START]                 ;INIT   BUFFER  POINTER
+                     LD    [IX+FCB_POINTER],E             
+                     LD    [IX+FCB_POINTER+1],0           
+
+                     LD    A,[IX+FCB_FIRST_  BLOCK]       ;SET  BLOCK   TO FIRST BLOCK
+                     TO    [IX*FCB_BLOCK],A               
+                     LD    A,[IX+FCB_FIRST  BLOCK+1]      
+                     LD    [IX+FCB  BLOCK+1],A            
+                     LD    A,[IX+FCB_FIRST_BLOCK+2]       
+                     LD    [IX+FCB  BLOCK+2],A            
+                     LD    A,[IX*FCB_FIRST_BLOCK+3]                                                                                        : 
+                     LD    [IX+FCB_BLOCK+3],A,            
+
+                     LD    A,[IX+FCB_MODE]                ;LOOK  AT  THE  MODE
+                     AND   MODE MODE                      
+                     CP    MODE WRITE                     ;IS  IT  WRITE  MODE?
+                     JR    2,OPENS                        ;JUMP   IF SO  --  NO PRE-READ  NECESSARY
+
+READ_TIMEOUT:                                             
+;*                    Tf FCB_USED  LENGTH    = 1  (file  size  of  one block)
+                     XOR   A                              ;load  Acc with zero
+                     CP    [IX+FCB_USED_LENGTH+   1]              SHIGH  ORDER MUST BE ZERO 
+                     JR    NZ,NOT_SIZE  1                 ;I1f not then past bitset
+                     INC   &                              ;Inc  Acc to a  1
+                     CP    [IX+¢FCB_USED_LENGTH]          ;Compare  with low order
+                     JR    NZ,NOT_SIZE_1                  ;If not  equal then exit
+
+;+                    Then  set  last block   bit  in mode
+                     SET   MODE  LAST  BLOCK BIT,[IX+FCB_MODE] ;Set  it
+;+                    Endif
+NOT_SIZE_1:                                               
+
+                     LD    A,[IX*FCB_DEVICE]              ;GET  THE  DEVICE   NUMBER
+                     LD    HL,[BUF_ START]                ;GET  BUFFER  ADDRESS
+                     LD    E,[IX+FCB_BLOCK]               ;GET  BLOCK  NUMBER
+                     LD    O,[IX+FCB_BLOCK+   1]          
+                     LD    C,[IX+FCB  BLOCK+2]            
+                     LD    8,[IX+FCB_BLOCK+3]             
+                     CALL  READ_BLOCK                     ;READ  THE  FIRST  BLOCK
+
